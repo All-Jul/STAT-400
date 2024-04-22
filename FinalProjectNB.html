@@ -355,8 +355,8 @@ display: none;
 </div>
 
 
-<div id="front-matter" class="section level2">
-<h2>Front Matter</h2>
+<div id="front-matter" class="section level1">
+<h1>Front Matter</h1>
 <pre class="r"><code>rm(list = ls())
 library(tidyverse)
 library(boastUtils)
@@ -633,10 +633,14 @@ studentDS1 &lt;- studentDS %&gt;%
       Father.s.occupation == 46 ~ &quot;Street vendors (except food) and street service providers&quot;,
       TRUE ~ &quot;Other&quot;
     )
-  ) %&gt;% select(!Nacionality)</code></pre>
+  ) %&gt;% 
+  dplyr::select( !Nacionality)</code></pre>
+<div id="introduction-motivation" class="section level3">
+<h3>Introduction (Motivation)</h3>
 </div>
-<div id="introduction-motivation" class="section level2">
-<h2>Introduction (Motivation)</h2>
+</div>
+<div id="glm-section" class="section level1">
+<h1>GLM Section</h1>
 <p><strong>Research Questions: </strong></p>
 <ul>
 <li><p>What variables are best when predicting the student status
@@ -644,7 +648,6 @@ studentDS1 &lt;- studentDS %&gt;%
 <li><p>When creating a model with said variables, which are most
 effective when predicting the student status?</p></li>
 </ul>
-</div>
 <div id="explanatory-dasta-analysis-eda" class="section level2">
 <h2>Explanatory Dasta Analysis (EDA)</h2>
 <pre class="r"><code>#See couple rows of data
@@ -971,7 +974,7 @@ group.</p></li>
 <pre class="r"><code>library(reshape2)
 
 # Calculate correlation matrix
-corMat &lt;- cor(studentDS %&gt;% select(!Target &amp; !sex), use = &quot;complete.obs&quot;)
+corMat &lt;- cor(studentDS %&gt;% dplyr::select(!Target &amp; !sex), use = &quot;complete.obs&quot;)
 
 # Melt the correlation matrix
 corMelted &lt;- melt(corMat)
@@ -1023,53 +1026,81 @@ baseModel &lt;-  multinom(Target ~ 1, data = studentDS)</code></pre>
 ## initial  value 4860.260765 
 ## final  value 4511.832789 
 ## converged</code></pre>
-<pre class="r"><code>fullModel &lt;- multinom(Target ~ .-Target - sex, data = studentDS)</code></pre>
-<pre><code>## # weights:  108 (70 variable)
-## initial  value 4860.260765 
-## iter  10 value 3198.165878
-## iter  20 value 3057.408196
-## iter  30 value 3012.154104
-## iter  40 value 2959.097678
-## iter  50 value 2686.990332
-## iter  60 value 2586.567126
-## iter  70 value 2480.662755
-## iter  80 value 2450.603773
-## final  value 2450.602579 
-## converged</code></pre>
-<pre class="r"><code>#stepModel &lt;- stepAIC(fullModel, scope = list(lower = formula(baseModel), upper = formula(fullModel)), direction = &quot;backward&quot;)</code></pre>
-<pre class="r"><code>#Model using variables selected using backwards selection
-bsModel &lt;- multinom(Target ~ Application.mode + Application.order + Course + Previous.qualification + 
-    Nacionality + Mother.s.qualification + Mother.s.occupation + 
-    Displaced + Debtor + Tuition.fees.up.to.date + Gender + Scholarship.holder + 
+<pre class="r"><code>fullModel &lt;- multinom(Target ~ Marital.status + Application.mode + Application.order + 
+    Course + Daytime.evening.attendance + Previous.qualification + 
+    Nacionality + (Mother.s.qualification + Father.s.qualification + 
+    Mother.s.occupation + Father.s.occupation)^2 + Displaced + Educational.special.needs + 
+    (Debtor + Tuition.fees.up.to.date)^2 + Gender + Scholarship.holder + 
     Age.at.enrollment + International + Curricular.units.1st.sem..credited. + 
-    Curricular.units.1st.sem..evaluations. + Curricular.units.1st.sem..approved. + 
-    Curricular.units.1st.sem..grade. + Curricular.units.2nd.sem..credited. + 
+    (Curricular.units.1st.sem..enrolled. + Curricular.units.1st.sem..evaluations. + 
+    Curricular.units.1st.sem..approved. + Curricular.units.1st.sem..grade. + 
+    Curricular.units.1st.sem..without.evaluations.)^2 + (Curricular.units.2nd.sem..credited. + 
     Curricular.units.2nd.sem..enrolled. + Curricular.units.2nd.sem..evaluations. + 
     Curricular.units.2nd.sem..approved. + Curricular.units.2nd.sem..grade. + 
-    Curricular.units.2nd.sem..without.evaluations. + Unemployment.rate, data = studentDS)</code></pre>
-<pre><code>## # weights:  81 (52 variable)
+    Curricular.units.2nd.sem..without.evaluations.)^2 + Unemployment.rate + 
+    Inflation.rate + GDP + International:Nacionality, data = studentDS)</code></pre>
+<pre><code>## # weights:  207 (136 variable)
 ## initial  value 4860.260765 
-## iter  10 value 3072.218162
-## iter  20 value 2964.686943
-## iter  30 value 2923.295054
-## iter  40 value 2689.284947
-## iter  50 value 2528.880218
-## iter  60 value 2459.646082
-## final  value 2459.316639 
-## converged</code></pre>
+## iter  10 value 3162.088590
+## iter  20 value 2970.067397
+## iter  30 value 2901.954510
+## iter  40 value 2847.012620
+## iter  50 value 2786.345385
+## iter  60 value 2745.095434
+## iter  70 value 2722.811691
+## iter  80 value 2638.910758
+## iter  90 value 2527.225684
+## iter 100 value 2475.190317
+## final  value 2475.190317 
+## stopped after 100 iterations</code></pre>
+<pre class="r"><code>#stepModel &lt;- stepAIC(fullModel, scope = list(lower = formula(baseModel), upper = formula(fullModel)), direction = &quot;backward&quot;)</code></pre>
+<pre class="r"><code>#Model using variables selected using backwards selection
+bsModel &lt;- multinom(Target ~ Application.order + Course + Nacionality + Mother.s.qualification + 
+    Father.s.qualification + Mother.s.occupation + Father.s.occupation + 
+    Displaced + Debtor + Tuition.fees.up.to.date + Gender + Scholarship.holder + 
+    Age.at.enrollment + International + Curricular.units.1st.sem..credited. + 
+    Curricular.units.1st.sem..enrolled. + Curricular.units.1st.sem..approved. + 
+    Curricular.units.1st.sem..without.evaluations. + Curricular.units.2nd.sem..credited. + 
+    Curricular.units.2nd.sem..enrolled. + Curricular.units.2nd.sem..evaluations. + 
+    Curricular.units.2nd.sem..approved. + Curricular.units.2nd.sem..grade. + 
+    Curricular.units.2nd.sem..without.evaluations. + Unemployment.rate + 
+    Mother.s.qualification:Mother.s.occupation + Mother.s.occupation:Father.s.occupation + 
+    Curricular.units.1st.sem..enrolled.:Curricular.units.1st.sem..without.evaluations. + 
+    Curricular.units.1st.sem..approved.:Curricular.units.1st.sem..without.evaluations. + 
+    Curricular.units.2nd.sem..credited.:Curricular.units.2nd.sem..evaluations. + 
+    Curricular.units.2nd.sem..credited.:Curricular.units.2nd.sem..approved. + 
+    Curricular.units.2nd.sem..credited.:Curricular.units.2nd.sem..without.evaluations. + 
+    Curricular.units.2nd.sem..enrolled.:Curricular.units.2nd.sem..evaluations. + 
+    Curricular.units.2nd.sem..enrolled.:Curricular.units.2nd.sem..approved. + 
+    Curricular.units.2nd.sem..enrolled.:Curricular.units.2nd.sem..without.evaluations. + 
+    Curricular.units.2nd.sem..evaluations.:Curricular.units.2nd.sem..approved. + 
+    Curricular.units.2nd.sem..evaluations.:Curricular.units.2nd.sem..without.evaluations. + 
+    Curricular.units.2nd.sem..approved.:Curricular.units.2nd.sem..grade., data = studentDS)</code></pre>
+<pre><code>## # weights:  120 (78 variable)
+## initial  value 4860.260765 
+## iter  10 value 3082.804661
+## iter  20 value 2852.060695
+## iter  30 value 2768.767989
+## iter  40 value 2696.858682
+## iter  50 value 2646.812419
+## iter  60 value 2476.317601
+## iter  70 value 2429.111227
+## iter  80 value 2399.544052
+## iter  90 value 2388.754082
+## iter 100 value 2388.739390
+## final  value 2388.739390 
+## stopped after 100 iterations</code></pre>
 <pre class="r"><code>#Summary Table
-tidy(bsModel, conf.int = TRUE, exponentiate = FALSE) %&gt;%
+tidy(bsModel, conf.int = FALSE, exponentiate = FALSE) %&gt;%
   kable(digits = 3, format = &quot;markdown&quot;)</code></pre>
 <table>
 <colgroup>
-<col width="8%" />
-<col width="41%" />
-<col width="8%" />
-<col width="8%" />
-<col width="8%" />
+<col width="6%" />
+<col width="65%" />
+<col width="6%" />
 <col width="7%" />
-<col width="8%" />
-<col width="8%" />
+<col width="7%" />
+<col width="6%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -1079,530 +1110,632 @@ tidy(bsModel, conf.int = TRUE, exponentiate = FALSE) %&gt;%
 <th align="right">std.error</th>
 <th align="right">statistic</th>
 <th align="right">p.value</th>
-<th align="right">conf.low</th>
-<th align="right">conf.high</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td align="left">Enrolled</td>
 <td align="left">(Intercept)</td>
-<td align="right">0.125</td>
-<td align="right">0.455</td>
-<td align="right">0.274</td>
-<td align="right">0.784</td>
-<td align="right">-0.767</td>
-<td align="right">1.016</td>
+<td align="right">0.030</td>
+<td align="right">0.512</td>
+<td align="right">0.059</td>
+<td align="right">0.953</td>
 </tr>
 <tr class="even">
-<td align="left">Enrolled</td>
-<td align="left">Application.mode</td>
-<td align="right">0.009</td>
-<td align="right">0.013</td>
-<td align="right">0.720</td>
-<td align="right">0.471</td>
-<td align="right">-0.016</td>
-<td align="right">0.034</td>
-</tr>
-<tr class="odd">
 <td align="left">Enrolled</td>
 <td align="left">Application.order</td>
-<td align="right">-0.108</td>
+<td align="right">-0.116</td>
 <td align="right">0.048</td>
-<td align="right">-2.269</td>
-<td align="right">0.023</td>
-<td align="right">-0.202</td>
-<td align="right">-0.015</td>
-</tr>
-<tr class="even">
-<td align="left">Enrolled</td>
-<td align="left">Course</td>
-<td align="right">-0.060</td>
-<td align="right">0.014</td>
-<td align="right">-4.189</td>
-<td align="right">0.000</td>
-<td align="right">-0.088</td>
-<td align="right">-0.032</td>
+<td align="right">-2.413</td>
+<td align="right">0.016</td>
 </tr>
 <tr class="odd">
 <td align="left">Enrolled</td>
-<td align="left">Previous.qualification</td>
-<td align="right">-0.007</td>
+<td align="left">Course</td>
+<td align="right">-0.069</td>
 <td align="right">0.015</td>
-<td align="right">-0.467</td>
-<td align="right">0.640</td>
-<td align="right">-0.037</td>
-<td align="right">0.023</td>
+<td align="right">-4.650</td>
+<td align="right">0.000</td>
 </tr>
 <tr class="even">
 <td align="left">Enrolled</td>
 <td align="left">Nacionality</td>
-<td align="right">-0.161</td>
-<td align="right">0.088</td>
-<td align="right">-1.836</td>
-<td align="right">0.066</td>
-<td align="right">-0.332</td>
-<td align="right">0.011</td>
+<td align="right">-0.158</td>
+<td align="right">0.049</td>
+<td align="right">-3.240</td>
+<td align="right">0.001</td>
 </tr>
 <tr class="odd">
 <td align="left">Enrolled</td>
 <td align="left">Mother.s.qualification</td>
-<td align="right">-0.028</td>
-<td align="right">0.007</td>
-<td align="right">-4.127</td>
+<td align="right">-0.058</td>
+<td align="right">0.015</td>
+<td align="right">-3.855</td>
 <td align="right">0.000</td>
-<td align="right">-0.041</td>
-<td align="right">-0.015</td>
 </tr>
 <tr class="even">
 <td align="left">Enrolled</td>
-<td align="left">Mother.s.occupation</td>
-<td align="right">0.089</td>
-<td align="right">0.015</td>
-<td align="right">6.010</td>
+<td align="left">Father.s.qualification</td>
 <td align="right">0.000</td>
-<td align="right">0.060</td>
-<td align="right">0.118</td>
+<td align="right">0.006</td>
+<td align="right">-0.002</td>
+<td align="right">0.999</td>
+</tr>
+<tr class="odd">
+<td align="left">Enrolled</td>
+<td align="left">Mother.s.occupation</td>
+<td align="right">0.001</td>
+<td align="right">0.032</td>
+<td align="right">0.023</td>
+<td align="right">0.981</td>
+</tr>
+<tr class="even">
+<td align="left">Enrolled</td>
+<td align="left">Father.s.occupation</td>
+<td align="right">0.018</td>
+<td align="right">0.026</td>
+<td align="right">0.675</td>
+<td align="right">0.500</td>
 </tr>
 <tr class="odd">
 <td align="left">Enrolled</td>
 <td align="left">Displaced</td>
-<td align="right">-0.339</td>
-<td align="right">0.124</td>
-<td align="right">-2.744</td>
-<td align="right">0.006</td>
-<td align="right">-0.581</td>
-<td align="right">-0.097</td>
+<td align="right">-0.330</td>
+<td align="right">0.126</td>
+<td align="right">-2.631</td>
+<td align="right">0.009</td>
 </tr>
 <tr class="even">
 <td align="left">Enrolled</td>
 <td align="left">Debtor</td>
-<td align="right">-0.227</td>
-<td align="right">0.173</td>
-<td align="right">-1.309</td>
-<td align="right">0.190</td>
-<td align="right">-0.567</td>
-<td align="right">0.113</td>
+<td align="right">-0.259</td>
+<td align="right">0.177</td>
+<td align="right">-1.468</td>
+<td align="right">0.142</td>
 </tr>
 <tr class="odd">
 <td align="left">Enrolled</td>
 <td align="left">Tuition.fees.up.to.date</td>
-<td align="right">1.982</td>
-<td align="right">0.199</td>
-<td align="right">9.964</td>
+<td align="right">2.014</td>
+<td align="right">0.202</td>
+<td align="right">9.980</td>
 <td align="right">0.000</td>
-<td align="right">1.592</td>
-<td align="right">2.372</td>
 </tr>
 <tr class="even">
 <td align="left">Enrolled</td>
 <td align="left">Gender</td>
-<td align="right">-0.248</td>
-<td align="right">0.114</td>
-<td align="right">-2.165</td>
-<td align="right">0.030</td>
-<td align="right">-0.472</td>
-<td align="right">-0.024</td>
+<td align="right">-0.239</td>
+<td align="right">0.117</td>
+<td align="right">-2.049</td>
+<td align="right">0.040</td>
 </tr>
 <tr class="odd">
 <td align="left">Enrolled</td>
 <td align="left">Scholarship.holder</td>
-<td align="right">0.077</td>
-<td align="right">0.158</td>
-<td align="right">0.488</td>
-<td align="right">0.626</td>
-<td align="right">-0.233</td>
-<td align="right">0.388</td>
+<td align="right">0.051</td>
+<td align="right">0.161</td>
+<td align="right">0.315</td>
+<td align="right">0.753</td>
 </tr>
 <tr class="even">
 <td align="left">Enrolled</td>
 <td align="left">Age.at.enrollment</td>
-<td align="right">-0.048</td>
+<td align="right">-0.043</td>
 <td align="right">0.009</td>
-<td align="right">-5.146</td>
+<td align="right">-4.751</td>
 <td align="right">0.000</td>
-<td align="right">-0.067</td>
-<td align="right">-0.030</td>
 </tr>
 <tr class="odd">
 <td align="left">Enrolled</td>
 <td align="left">International</td>
-<td align="right">2.263</td>
-<td align="right">1.026</td>
-<td align="right">2.206</td>
-<td align="right">0.027</td>
-<td align="right">0.253</td>
-<td align="right">4.273</td>
+<td align="right">2.354</td>
+<td align="right">0.465</td>
+<td align="right">5.061</td>
+<td align="right">0.000</td>
 </tr>
 <tr class="even">
 <td align="left">Enrolled</td>
 <td align="left">Curricular.units.1st.sem..credited.</td>
-<td align="right">-0.067</td>
-<td align="right">0.081</td>
-<td align="right">-0.835</td>
-<td align="right">0.404</td>
-<td align="right">-0.225</td>
-<td align="right">0.091</td>
+<td align="right">-0.023</td>
+<td align="right">0.096</td>
+<td align="right">-0.244</td>
+<td align="right">0.808</td>
 </tr>
 <tr class="odd">
 <td align="left">Enrolled</td>
-<td align="left">Curricular.units.1st.sem..evaluations.</td>
-<td align="right">0.035</td>
-<td align="right">0.022</td>
-<td align="right">1.596</td>
-<td align="right">0.110</td>
-<td align="right">-0.008</td>
-<td align="right">0.078</td>
+<td align="left">Curricular.units.1st.sem..enrolled.</td>
+<td align="right">-0.023</td>
+<td align="right">0.115</td>
+<td align="right">-0.204</td>
+<td align="right">0.838</td>
 </tr>
 <tr class="even">
 <td align="left">Enrolled</td>
 <td align="left">Curricular.units.1st.sem..approved.</td>
-<td align="right">0.118</td>
-<td align="right">0.053</td>
-<td align="right">2.243</td>
-<td align="right">0.025</td>
-<td align="right">0.015</td>
-<td align="right">0.221</td>
+<td align="right">0.080</td>
+<td align="right">0.048</td>
+<td align="right">1.653</td>
+<td align="right">0.098</td>
 </tr>
 <tr class="odd">
 <td align="left">Enrolled</td>
-<td align="left">Curricular.units.1st.sem..grade.</td>
-<td align="right">-0.044</td>
-<td align="right">0.023</td>
-<td align="right">-1.890</td>
-<td align="right">0.059</td>
-<td align="right">-0.089</td>
-<td align="right">0.002</td>
+<td align="left">Curricular.units.1st.sem..without.evaluations.</td>
+<td align="right">0.164</td>
+<td align="right">0.332</td>
+<td align="right">0.494</td>
+<td align="right">0.621</td>
 </tr>
 <tr class="even">
 <td align="left">Enrolled</td>
 <td align="left">Curricular.units.2nd.sem..credited.</td>
-<td align="right">-0.222</td>
-<td align="right">0.099</td>
-<td align="right">-2.252</td>
-<td align="right">0.024</td>
-<td align="right">-0.415</td>
-<td align="right">-0.029</td>
+<td align="right">-0.373</td>
+<td align="right">0.192</td>
+<td align="right">-1.944</td>
+<td align="right">0.052</td>
 </tr>
 <tr class="odd">
 <td align="left">Enrolled</td>
 <td align="left">Curricular.units.2nd.sem..enrolled.</td>
-<td align="right">-0.357</td>
-<td align="right">0.051</td>
-<td align="right">-6.949</td>
-<td align="right">0.000</td>
-<td align="right">-0.458</td>
-<td align="right">-0.256</td>
+<td align="right">-0.327</td>
+<td align="right">0.129</td>
+<td align="right">-2.530</td>
+<td align="right">0.011</td>
 </tr>
 <tr class="even">
 <td align="left">Enrolled</td>
 <td align="left">Curricular.units.2nd.sem..evaluations.</td>
-<td align="right">0.094</td>
-<td align="right">0.023</td>
-<td align="right">4.150</td>
-<td align="right">0.000</td>
-<td align="right">0.050</td>
-<td align="right">0.138</td>
+<td align="right">0.209</td>
+<td align="right">0.078</td>
+<td align="right">2.697</td>
+<td align="right">0.007</td>
 </tr>
 <tr class="odd">
 <td align="left">Enrolled</td>
 <td align="left">Curricular.units.2nd.sem..approved.</td>
-<td align="right">0.363</td>
-<td align="right">0.050</td>
-<td align="right">7.303</td>
+<td align="right">0.964</td>
+<td align="right">0.202</td>
+<td align="right">4.760</td>
 <td align="right">0.000</td>
-<td align="right">0.266</td>
-<td align="right">0.461</td>
 </tr>
 <tr class="even">
 <td align="left">Enrolled</td>
 <td align="left">Curricular.units.2nd.sem..grade.</td>
-<td align="right">0.080</td>
-<td align="right">0.021</td>
-<td align="right">3.714</td>
-<td align="right">0.000</td>
-<td align="right">0.038</td>
-<td align="right">0.122</td>
+<td align="right">0.079</td>
+<td align="right">0.023</td>
+<td align="right">3.400</td>
+<td align="right">0.001</td>
 </tr>
 <tr class="odd">
 <td align="left">Enrolled</td>
 <td align="left">Curricular.units.2nd.sem..without.evaluations.</td>
-<td align="right">0.094</td>
-<td align="right">0.070</td>
-<td align="right">1.352</td>
-<td align="right">0.176</td>
-<td align="right">-0.042</td>
+<td align="right">-1.079</td>
+<td align="right">0.491</td>
+<td align="right">-2.199</td>
+<td align="right">0.028</td>
+</tr>
+<tr class="even">
+<td align="left">Enrolled</td>
+<td align="left">Unemployment.rate</td>
+<td align="right">-0.085</td>
+<td align="right">0.022</td>
+<td align="right">-3.886</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="odd">
+<td align="left">Enrolled</td>
+<td align="left">Mother.s.qualification:Mother.s.occupation</td>
+<td align="right">0.004</td>
+<td align="right">0.002</td>
+<td align="right">2.509</td>
+<td align="right">0.012</td>
+</tr>
+<tr class="even">
+<td align="left">Enrolled</td>
+<td align="left">Mother.s.occupation:Father.s.occupation</td>
+<td align="right">0.001</td>
+<td align="right">0.001</td>
+<td align="right">0.800</td>
+<td align="right">0.424</td>
+</tr>
+<tr class="odd">
+<td align="left">Enrolled</td>
+<td align="left">Curricular.units.1st.sem..enrolled.:Curricular.units.1st.sem..without.evaluations.</td>
+<td align="right">-0.018</td>
+<td align="right">0.054</td>
+<td align="right">-0.340</td>
+<td align="right">0.734</td>
+</tr>
+<tr class="even">
+<td align="left">Enrolled</td>
+<td align="left">Curricular.units.1st.sem..approved.:Curricular.units.1st.sem..without.evaluations.</td>
+<td align="right">-0.059</td>
+<td align="right">0.036</td>
+<td align="right">-1.639</td>
+<td align="right">0.101</td>
+</tr>
+<tr class="odd">
+<td align="left">Enrolled</td>
+<td align="left">Curricular.units.2nd.sem..credited.:Curricular.units.2nd.sem..evaluations.</td>
+<td align="right">0.032</td>
+<td align="right">0.015</td>
+<td align="right">2.125</td>
+<td align="right">0.034</td>
+</tr>
+<tr class="even">
+<td align="left">Enrolled</td>
+<td align="left">Curricular.units.2nd.sem..credited.:Curricular.units.2nd.sem..approved.</td>
+<td align="right">-0.023</td>
+<td align="right">0.022</td>
+<td align="right">-1.054</td>
+<td align="right">0.292</td>
+</tr>
+<tr class="odd">
+<td align="left">Enrolled</td>
+<td align="left">Curricular.units.2nd.sem..credited.:Curricular.units.2nd.sem..without.evaluations.</td>
+<td align="right">-0.171</td>
+<td align="right">0.097</td>
+<td align="right">-1.768</td>
+<td align="right">0.077</td>
+</tr>
+<tr class="even">
+<td align="left">Enrolled</td>
+<td align="left">Curricular.units.2nd.sem..enrolled.:Curricular.units.2nd.sem..evaluations.</td>
+<td align="right">-0.017</td>
+<td align="right">0.013</td>
+<td align="right">-1.340</td>
+<td align="right">0.180</td>
+</tr>
+<tr class="odd">
+<td align="left">Enrolled</td>
+<td align="left">Curricular.units.2nd.sem..enrolled.:Curricular.units.2nd.sem..approved.</td>
+<td align="right">0.014</td>
+<td align="right">0.023</td>
+<td align="right">0.611</td>
+<td align="right">0.541</td>
+</tr>
+<tr class="even">
+<td align="left">Enrolled</td>
+<td align="left">Curricular.units.2nd.sem..enrolled.:Curricular.units.2nd.sem..without.evaluations.</td>
+<td align="right">0.228</td>
+<td align="right">0.068</td>
+<td align="right">3.352</td>
+<td align="right">0.001</td>
+</tr>
+<tr class="odd">
+<td align="left">Enrolled</td>
+<td align="left">Curricular.units.2nd.sem..evaluations.:Curricular.units.2nd.sem..approved.</td>
+<td align="right">-0.006</td>
+<td align="right">0.010</td>
+<td align="right">-0.588</td>
+<td align="right">0.557</td>
+</tr>
+<tr class="even">
+<td align="left">Enrolled</td>
+<td align="left">Curricular.units.2nd.sem..evaluations.:Curricular.units.2nd.sem..without.evaluations.</td>
+<td align="right">-0.026</td>
+<td align="right">0.025</td>
+<td align="right">-1.015</td>
+<td align="right">0.310</td>
+</tr>
+<tr class="odd">
+<td align="left">Enrolled</td>
+<td align="left">Curricular.units.2nd.sem..approved.:Curricular.units.2nd.sem..grade.</td>
+<td align="right">-0.048</td>
+<td align="right">0.012</td>
+<td align="right">-4.055</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="even">
+<td align="left">Graduate</td>
+<td align="left">(Intercept)</td>
+<td align="right">0.330</td>
+<td align="right">0.549</td>
+<td align="right">0.601</td>
+<td align="right">0.548</td>
+</tr>
+<tr class="odd">
+<td align="left">Graduate</td>
+<td align="left">Application.order</td>
+<td align="right">-0.088</td>
+<td align="right">0.048</td>
+<td align="right">-1.824</td>
+<td align="right">0.068</td>
+</tr>
+<tr class="even">
+<td align="left">Graduate</td>
+<td align="left">Course</td>
+<td align="right">-0.120</td>
+<td align="right">0.016</td>
+<td align="right">-7.338</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="odd">
+<td align="left">Graduate</td>
+<td align="left">Nacionality</td>
+<td align="right">-0.257</td>
+<td align="right">0.043</td>
+<td align="right">-6.017</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="even">
+<td align="left">Graduate</td>
+<td align="left">Mother.s.qualification</td>
+<td align="right">-0.032</td>
+<td align="right">0.016</td>
+<td align="right">-1.997</td>
+<td align="right">0.046</td>
+</tr>
+<tr class="odd">
+<td align="left">Graduate</td>
+<td align="left">Father.s.qualification</td>
+<td align="right">0.011</td>
+<td align="right">0.006</td>
+<td align="right">1.669</td>
+<td align="right">0.095</td>
+</tr>
+<tr class="even">
+<td align="left">Graduate</td>
+<td align="left">Mother.s.occupation</td>
+<td align="right">-0.008</td>
+<td align="right">0.035</td>
+<td align="right">-0.238</td>
+<td align="right">0.812</td>
+</tr>
+<tr class="odd">
+<td align="left">Graduate</td>
+<td align="left">Father.s.occupation</td>
+<td align="right">-0.034</td>
+<td align="right">0.028</td>
+<td align="right">-1.198</td>
 <td align="right">0.231</td>
 </tr>
 <tr class="even">
-<td align="left">Enrolled</td>
-<td align="left">Unemployment.rate</td>
-<td align="right">-0.101</td>
-<td align="right">0.021</td>
-<td align="right">-4.741</td>
-<td align="right">0.000</td>
-<td align="right">-0.143</td>
-<td align="right">-0.059</td>
-</tr>
-<tr class="odd">
-<td align="left">Graduate</td>
-<td align="left">(Intercept)</td>
-<td align="right">-0.313</td>
-<td align="right">0.503</td>
-<td align="right">-0.623</td>
-<td align="right">0.533</td>
-<td align="right">-1.298</td>
-<td align="right">0.672</td>
-</tr>
-<tr class="even">
-<td align="left">Graduate</td>
-<td align="left">Application.mode</td>
-<td align="right">-0.015</td>
-<td align="right">0.014</td>
-<td align="right">-1.134</td>
-<td align="right">0.257</td>
-<td align="right">-0.042</td>
-<td align="right">0.011</td>
-</tr>
-<tr class="odd">
-<td align="left">Graduate</td>
-<td align="left">Application.order</td>
-<td align="right">-0.076</td>
-<td align="right">0.048</td>
-<td align="right">-1.585</td>
-<td align="right">0.113</td>
-<td align="right">-0.171</td>
-<td align="right">0.018</td>
-</tr>
-<tr class="even">
-<td align="left">Graduate</td>
-<td align="left">Course</td>
-<td align="right">-0.110</td>
-<td align="right">0.015</td>
-<td align="right">-7.093</td>
-<td align="right">0.000</td>
-<td align="right">-0.140</td>
-<td align="right">-0.079</td>
-</tr>
-<tr class="odd">
-<td align="left">Graduate</td>
-<td align="left">Previous.qualification</td>
-<td align="right">0.027</td>
-<td align="right">0.017</td>
-<td align="right">1.620</td>
-<td align="right">0.105</td>
-<td align="right">-0.006</td>
-<td align="right">0.060</td>
-</tr>
-<tr class="even">
-<td align="left">Graduate</td>
-<td align="left">Nacionality</td>
-<td align="right">-0.246</td>
-<td align="right">0.099</td>
-<td align="right">-2.479</td>
-<td align="right">0.013</td>
-<td align="right">-0.440</td>
-<td align="right">-0.051</td>
-</tr>
-<tr class="odd">
-<td align="left">Graduate</td>
-<td align="left">Mother.s.qualification</td>
-<td align="right">-0.008</td>
-<td align="right">0.007</td>
-<td align="right">-1.155</td>
-<td align="right">0.248</td>
-<td align="right">-0.023</td>
-<td align="right">0.006</td>
-</tr>
-<tr class="even">
-<td align="left">Graduate</td>
-<td align="left">Mother.s.occupation</td>
-<td align="right">0.069</td>
-<td align="right">0.017</td>
-<td align="right">4.184</td>
-<td align="right">0.000</td>
-<td align="right">0.037</td>
-<td align="right">0.102</td>
-</tr>
-<tr class="odd">
 <td align="left">Graduate</td>
 <td align="left">Displaced</td>
-<td align="right">-0.318</td>
-<td align="right">0.134</td>
-<td align="right">-2.371</td>
-<td align="right">0.018</td>
-<td align="right">-0.581</td>
-<td align="right">-0.055</td>
+<td align="right">-0.305</td>
+<td align="right">0.135</td>
+<td align="right">-2.254</td>
+<td align="right">0.024</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Graduate</td>
 <td align="left">Debtor</td>
-<td align="right">-1.034</td>
-<td align="right">0.213</td>
-<td align="right">-4.853</td>
+<td align="right">-1.019</td>
+<td align="right">0.216</td>
+<td align="right">-4.711</td>
 <td align="right">0.000</td>
-<td align="right">-1.452</td>
-<td align="right">-0.617</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Graduate</td>
 <td align="left">Tuition.fees.up.to.date</td>
-<td align="right">3.069</td>
-<td align="right">0.273</td>
-<td align="right">11.244</td>
+<td align="right">3.139</td>
+<td align="right">0.278</td>
+<td align="right">11.304</td>
 <td align="right">0.000</td>
-<td align="right">2.534</td>
-<td align="right">3.604</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Graduate</td>
 <td align="left">Gender</td>
-<td align="right">-0.505</td>
-<td align="right">0.124</td>
-<td align="right">-4.069</td>
+<td align="right">-0.492</td>
+<td align="right">0.126</td>
+<td align="right">-3.891</td>
 <td align="right">0.000</td>
-<td align="right">-0.748</td>
-<td align="right">-0.262</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Graduate</td>
 <td align="left">Scholarship.holder</td>
-<td align="right">0.734</td>
-<td align="right">0.153</td>
-<td align="right">4.812</td>
+<td align="right">0.730</td>
+<td align="right">0.155</td>
+<td align="right">4.707</td>
 <td align="right">0.000</td>
-<td align="right">0.435</td>
-<td align="right">1.033</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Graduate</td>
 <td align="left">Age.at.enrollment</td>
-<td align="right">-0.044</td>
-<td align="right">0.010</td>
-<td align="right">-4.534</td>
+<td align="right">-0.047</td>
+<td align="right">0.009</td>
+<td align="right">-4.999</td>
 <td align="right">0.000</td>
-<td align="right">-0.063</td>
-<td align="right">-0.025</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Graduate</td>
 <td align="left">International</td>
-<td align="right">3.382</td>
-<td align="right">1.201</td>
-<td align="right">2.816</td>
-<td align="right">0.005</td>
-<td align="right">1.028</td>
-<td align="right">5.737</td>
+<td align="right">3.579</td>
+<td align="right">0.366</td>
+<td align="right">9.788</td>
+<td align="right">0.000</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Graduate</td>
 <td align="left">Curricular.units.1st.sem..credited.</td>
-<td align="right">-0.290</td>
-<td align="right">0.084</td>
-<td align="right">-3.442</td>
-<td align="right">0.001</td>
-<td align="right">-0.455</td>
-<td align="right">-0.125</td>
-</tr>
-<tr class="odd">
-<td align="left">Graduate</td>
-<td align="left">Curricular.units.1st.sem..evaluations.</td>
-<td align="right">-0.045</td>
-<td align="right">0.027</td>
-<td align="right">-1.665</td>
-<td align="right">0.096</td>
-<td align="right">-0.098</td>
-<td align="right">0.008</td>
+<td align="right">-0.241</td>
+<td align="right">0.101</td>
+<td align="right">-2.385</td>
+<td align="right">0.017</td>
 </tr>
 <tr class="even">
+<td align="left">Graduate</td>
+<td align="left">Curricular.units.1st.sem..enrolled.</td>
+<td align="right">-0.286</td>
+<td align="right">0.126</td>
+<td align="right">-2.269</td>
+<td align="right">0.023</td>
+</tr>
+<tr class="odd">
 <td align="left">Graduate</td>
 <td align="left">Curricular.units.1st.sem..approved.</td>
-<td align="right">0.668</td>
-<td align="right">0.065</td>
-<td align="right">10.266</td>
+<td align="right">0.755</td>
+<td align="right">0.068</td>
+<td align="right">11.101</td>
 <td align="right">0.000</td>
-<td align="right">0.540</td>
-<td align="right">0.795</td>
-</tr>
-<tr class="odd">
-<td align="left">Graduate</td>
-<td align="left">Curricular.units.1st.sem..grade.</td>
-<td align="right">-0.102</td>
-<td align="right">0.042</td>
-<td align="right">-2.463</td>
-<td align="right">0.014</td>
-<td align="right">-0.184</td>
-<td align="right">-0.021</td>
 </tr>
 <tr class="even">
+<td align="left">Graduate</td>
+<td align="left">Curricular.units.1st.sem..without.evaluations.</td>
+<td align="right">-0.677</td>
+<td align="right">0.285</td>
+<td align="right">-2.374</td>
+<td align="right">0.018</td>
+</tr>
+<tr class="odd">
 <td align="left">Graduate</td>
 <td align="left">Curricular.units.2nd.sem..credited.</td>
-<td align="right">-0.084</td>
-<td align="right">0.097</td>
-<td align="right">-0.865</td>
-<td align="right">0.387</td>
-<td align="right">-0.273</td>
-<td align="right">0.106</td>
+<td align="right">-0.180</td>
+<td align="right">0.208</td>
+<td align="right">-0.868</td>
+<td align="right">0.385</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Graduate</td>
 <td align="left">Curricular.units.2nd.sem..enrolled.</td>
-<td align="right">-1.105</td>
-<td align="right">0.086</td>
-<td align="right">-12.839</td>
+<td align="right">-1.222</td>
+<td align="right">0.219</td>
+<td align="right">-5.577</td>
 <td align="right">0.000</td>
-<td align="right">-1.274</td>
-<td align="right">-0.936</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Graduate</td>
 <td align="left">Curricular.units.2nd.sem..evaluations.</td>
-<td align="right">-0.020</td>
-<td align="right">0.030</td>
-<td align="right">-0.671</td>
-<td align="right">0.502</td>
-<td align="right">-0.078</td>
-<td align="right">0.038</td>
+<td align="right">-0.239</td>
+<td align="right">0.103</td>
+<td align="right">-2.333</td>
+<td align="right">0.020</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Graduate</td>
 <td align="left">Curricular.units.2nd.sem..approved.</td>
-<td align="right">1.113</td>
-<td align="right">0.067</td>
-<td align="right">16.719</td>
+<td align="right">1.772</td>
+<td align="right">0.232</td>
+<td align="right">7.649</td>
 <td align="right">0.000</td>
-<td align="right">0.982</td>
-<td align="right">1.243</td>
-</tr>
-<tr class="even">
-<td align="left">Graduate</td>
-<td align="left">Curricular.units.2nd.sem..grade.</td>
-<td align="right">0.144</td>
-<td align="right">0.042</td>
-<td align="right">3.439</td>
-<td align="right">0.001</td>
-<td align="right">0.062</td>
-<td align="right">0.225</td>
 </tr>
 <tr class="odd">
 <td align="left">Graduate</td>
-<td align="left">Curricular.units.2nd.sem..without.evaluations.</td>
-<td align="right">0.214</td>
-<td align="right">0.105</td>
-<td align="right">2.042</td>
-<td align="right">0.041</td>
-<td align="right">0.009</td>
-<td align="right">0.420</td>
+<td align="left">Curricular.units.2nd.sem..grade.</td>
+<td align="right">0.044</td>
+<td align="right">0.058</td>
+<td align="right">0.763</td>
+<td align="right">0.446</td>
 </tr>
 <tr class="even">
 <td align="left">Graduate</td>
+<td align="left">Curricular.units.2nd.sem..without.evaluations.</td>
+<td align="right">0.266</td>
+<td align="right">0.572</td>
+<td align="right">0.466</td>
+<td align="right">0.641</td>
+</tr>
+<tr class="odd">
+<td align="left">Graduate</td>
 <td align="left">Unemployment.rate</td>
-<td align="right">-0.086</td>
+<td align="right">-0.094</td>
 <td align="right">0.023</td>
-<td align="right">-3.762</td>
+<td align="right">-4.025</td>
 <td align="right">0.000</td>
-<td align="right">-0.131</td>
-<td align="right">-0.041</td>
+</tr>
+<tr class="even">
+<td align="left">Graduate</td>
+<td align="left">Mother.s.qualification:Mother.s.occupation</td>
+<td align="right">0.003</td>
+<td align="right">0.002</td>
+<td align="right">1.605</td>
+<td align="right">0.109</td>
+</tr>
+<tr class="odd">
+<td align="left">Graduate</td>
+<td align="left">Mother.s.occupation:Father.s.occupation</td>
+<td align="right">0.003</td>
+<td align="right">0.001</td>
+<td align="right">2.008</td>
+<td align="right">0.045</td>
+</tr>
+<tr class="even">
+<td align="left">Graduate</td>
+<td align="left">Curricular.units.1st.sem..enrolled.:Curricular.units.1st.sem..without.evaluations.</td>
+<td align="right">0.244</td>
+<td align="right">0.044</td>
+<td align="right">5.498</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="odd">
+<td align="left">Graduate</td>
+<td align="left">Curricular.units.1st.sem..approved.:Curricular.units.1st.sem..without.evaluations.</td>
+<td align="right">-0.242</td>
+<td align="right">0.039</td>
+<td align="right">-6.259</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="even">
+<td align="left">Graduate</td>
+<td align="left">Curricular.units.2nd.sem..credited.:Curricular.units.2nd.sem..evaluations.</td>
+<td align="right">-0.013</td>
+<td align="right">0.016</td>
+<td align="right">-0.824</td>
+<td align="right">0.410</td>
+</tr>
+<tr class="odd">
+<td align="left">Graduate</td>
+<td align="left">Curricular.units.2nd.sem..credited.:Curricular.units.2nd.sem..approved.</td>
+<td align="right">0.028</td>
+<td align="right">0.022</td>
+<td align="right">1.255</td>
+<td align="right">0.209</td>
+</tr>
+<tr class="even">
+<td align="left">Graduate</td>
+<td align="left">Curricular.units.2nd.sem..credited.:Curricular.units.2nd.sem..without.evaluations.</td>
+<td align="right">0.166</td>
+<td align="right">0.098</td>
+<td align="right">1.693</td>
+<td align="right">0.091</td>
+</tr>
+<tr class="odd">
+<td align="left">Graduate</td>
+<td align="left">Curricular.units.2nd.sem..enrolled.:Curricular.units.2nd.sem..evaluations.</td>
+<td align="right">0.061</td>
+<td align="right">0.016</td>
+<td align="right">3.761</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="even">
+<td align="left">Graduate</td>
+<td align="left">Curricular.units.2nd.sem..enrolled.:Curricular.units.2nd.sem..approved.</td>
+<td align="right">-0.050</td>
+<td align="right">0.027</td>
+<td align="right">-1.877</td>
+<td align="right">0.060</td>
+</tr>
+<tr class="odd">
+<td align="left">Graduate</td>
+<td align="left">Curricular.units.2nd.sem..enrolled.:Curricular.units.2nd.sem..without.evaluations.</td>
+<td align="right">-0.161</td>
+<td align="right">0.095</td>
+<td align="right">-1.700</td>
+<td align="right">0.089</td>
+</tr>
+<tr class="even">
+<td align="left">Graduate</td>
+<td align="left">Curricular.units.2nd.sem..evaluations.:Curricular.units.2nd.sem..approved.</td>
+<td align="right">-0.039</td>
+<td align="right">0.016</td>
+<td align="right">-2.474</td>
+<td align="right">0.013</td>
+</tr>
+<tr class="odd">
+<td align="left">Graduate</td>
+<td align="left">Curricular.units.2nd.sem..evaluations.:Curricular.units.2nd.sem..without.evaluations.</td>
+<td align="right">0.061</td>
+<td align="right">0.029</td>
+<td align="right">2.118</td>
+<td align="right">0.034</td>
+</tr>
+<tr class="even">
+<td align="left">Graduate</td>
+<td align="left">Curricular.units.2nd.sem..approved.:Curricular.units.2nd.sem..grade.</td>
+<td align="right">0.002</td>
+<td align="right">0.014</td>
+<td align="right">0.173</td>
+<td align="right">0.862</td>
 </tr>
 </tbody>
 </table>
@@ -1610,65 +1743,88 @@ tidy(bsModel, conf.int = TRUE, exponentiate = FALSE) %&gt;%
 <ul>
 <li>The formula’s for the multinomial model are as follows:</li>
 </ul>
+<p><strong>Enrolled vs Dropout: </strong></p>
+<p>Certainly! Here’s the updated formula for the “Enrolled vs Dropout”
+model without using the line continuation symbol:</p>
+<div id="corrected-enrolled-vs-dropout-model-including-missed-interactions" class="section level3">
+<h3>Corrected Enrolled vs Dropout Model Including Missed
+Interactions</h3>
 <p><span class="math display">\[\log\left(\frac{\hat{p}_{i,
-\text{Enrolled}}}{\hat{p}_{i, \text{Dropout}}}\right) = 0.1247949 +
-0.009149317 x_{\text{Application.mode}} - 0.1084979
-x_{\text{Application.order}} - 0.05984535 x_{\text{Course}} -
-0.007143544 x_{\text{Previous.qualification}} - 0.1607959
-x_{\text{Nacionality}} - 0.028105054 x_{\text{Mother.s.qualification}} +
-0.08921911 x_{\text{Mother.s.occupation}} - 0.3389803
-x_{\text{Displaced}} - 0.2269397 x_{\text{Debtor}} + 1.981863
-x_{\text{Tuition.fees.up.to.date}} - 0.2478873 x_{\text{Gender}} +
-0.07732892 x_{\text{Scholarship.holder}} - 0.04821212
-x_{\text{Age.at.enrollment}} + 2.26295 x_{\text{International}} -
-0.06734891 x_{\text{Curricular.units.1st.sem..credited.}} + 0.03514532
-x_{\text{Curricular.units.1st.sem..evaluations.}} + 0.118055
-x_{\text{Curricular.units.1st.sem..approved.}} - 0.04355277
-x_{\text{Curricular.units.1st.sem..grade.}} - 0.22199676
-x_{\text{Curricular.units.2nd.sem..credited.}} - 0.3572505
-x_{\text{Curricular.units.2nd.sem..enrolled.}} + 0.09406026
-x_{\text{Curricular.units.2nd.sem..evaluations.}} + 0.3631424
-x_{\text{Curricular.units.2nd.sem..approved.}} + 0.07983063
-x_{\text{Curricular.units.2nd.sem..grade.}} + 0.0943232
-x_{\text{Curricular.units.2nd.sem..without.evaluations.}} - 0.10141801
-x_{\text{Unemployment.rate}} + \epsilon\]</span></p>
+\text{Enrolled}}}{\hat{p}_{i, \text{Dropout}}}\right) = 0.030 - 0.116
+x_{\text{Application.order}} - 0.069 x_{\text{Course}} - 0.158
+x_{\text{Nacionality}} - 0.058 x_{\text{Mother.s.qualification}} + 0.001
+x_{\text{Mother.s.occupation}} - 0.330 x_{\text{Displaced}} - 0.259
+x_{\text{Debtor}} + 2.014 x_{\text{Tuition.fees.up.to.date}} - 0.239
+x_{\text{Gender}} + 0.051 x_{\text{Scholarship.holder}} - 0.043
+x_{\text{Age.at.enrollment}} + 2.354 x_{\text{International}} - 0.023
+x_{\text{Curricular.units.1st.sem..credited.}} - 0.023
+x_{\text{Curricular.units.1st.sem..enrolled.}} + 0.080
+x_{\text{Curricular.units.1st.sem..approved.}} - 0.373
+x_{\text{Curricular.units.2nd.sem..credited.}} - 0.327
+x_{\text{Curricular.units.2nd.sem..enrolled.}} + 0.209
+x_{\text{Curricular.units.2nd.sem..evaluations.}} + 0.964
+x_{\text{Curricular.units.2nd.sem..approved.}} + 0.079
+x_{\text{Curricular.units.2nd.sem..grade.}} - 1.079
+x_{\text{Curricular.units.2nd.sem..without.evaluations.}} - 0.085
+x_{\text{Unemployment.rate}} + 0.004 x_{\text{Mother.s.qualification}}
+x_{\text{Mother.s.occupation}} + 0.001 x_{\text{Mother.s.occupation}}
+x_{\text{Father.s.occupation}} - 0.018
+x_{\text{Curricular.units.1st.sem..enrolled.}}
+x_{\text{Curricular.units.1st.sem..without.evaluations.}} - 0.059
+x_{\text{Curricular.units.1st.sem..approved.}}
+x_{\text{Curricular.units.1st.sem..without.evaluations.}} + 0.032
+x_{\text{Curricular.units.2nd.sem..credited.}}
+x_{\text{Curricular.units.2nd.sem..evaluations.}} + 0.228
+x_{\text{Curricular.units.2nd.sem..enrolled.}}
+x_{\text{Curricular.units.2nd.sem..without.evaluations.}} - 0.006
+x_{\text{Curricular.units.2nd.sem..evaluations.}}
+x_{\text{Curricular.units.2nd.sem..approved.}} - 0.026
+x_{\text{Curricular.units.2nd.sem..evaluations.}}
+x_{\text{Curricular.units.2nd.sem..without.evaluations.}} - 0.048
+x_{\text{Curricular.units.2nd.sem..approved.}}
+x_{\text{Curricular.units.2nd.sem..grade.}} + \epsilon\]</span></p>
+<p><strong>Graduate vs Dropout: </strong></p>
 <p><span class="math display">\[\log\left(\frac{\hat{p}_{i,
-\text{Graduate}}}{\hat{p}_{i, \text{Dropout}}}\right) = -0.3130005 -
-0.015365970 x_{\text{Application.mode}} - 0.0764883
-x_{\text{Application.order}} - 0.10971874 x_{\text{Course}} +
-0.027356904 x_{\text{Previous.qualification}} - 0.2458373
-x_{\text{Nacionality}} - 0.008394626 x_{\text{Mother.s.qualification}} +
-0.06949083 x_{\text{Mother.s.occupation}} - 0.3178092
-x_{\text{Displaced}} - 1.0343931 x_{\text{Debtor}} + 3.069092
-x_{\text{Tuition.fees.up.to.date}} - 0.5051549 x_{\text{Gender}} +
-0.73427631 x_{\text{Scholarship.holder}} - 0.04392779
-x_{\text{Age.at.enrollment}} + 3.382372 x_{\text{International}} -
-0.28985793 x_{\text{Curricular.units.1st.sem..credited}} - 0.04487982
-x_{\text{Curricular.units.1st.sem..evaluations}} + 0.6676107
-x_{\text{Curricular.units.1st.sem..approved}} - 0.10231861
-x_{\text{Curricular.units.1st.sem..grade}} - 0.08366331
-x_{\text{Curricular.units.2nd.sem..credited}} - 1.1051600
-x_{\text{Curricular.units.2nd.sem..enrolled}} - 0.01985748
-x_{\text{Curricular.units.2nd.sem..evaluations}} + 1.1129269
-x_{\text{Curricular.units.2nd.sem..approved}} + 0.14357216
-x_{\text{Curricular.units.2nd.sem..grade}} + 0.2142498
-x_{\text{Curricular.units.2nd.sem..without.evaluations}} - 0.08581726
-x_{\text{Unemployment.rate}} + \epsilon\]</span></p>
+\text{Graduate}}}{\hat{p}_{i, \text{Dropout}}}\right) = 0.330 - 0.088
+x_{\text{Application.order}} - 0.120 x_{\text{Course}} - 0.257
+x_{\text{Nacionality}} - 0.032 x_{\text{Mother.s.qualification}} - 0.008
+x_{\text{Mother.s.occupation}} - 0.305 x_{\text{Displaced}} - 1.019
+x_{\text{Debtor}} + 3.139 x_{\text{Tuition.fees.up.to.date}} - 0.492
+x_{\text{Gender}} + 0.730 x_{\text{Scholarship.holder}} - 0.047
+x_{\text{Age.at.enrollment}} + 3.579 x_{\text{International}} - 0.241
+x_{\text{Curricular.units.1st.sem..credited.}} - 0.286
+x_{\text{Curricular.units.1st.sem..enrolled.}} + 0.755
+x_{\text{Curricular.units.1st.sem..approved.}} - 0.677
+x_{\text{Curricular.units.1st.sem..without.evaluations.}} - 0.180
+x_{\text{Curricular.units.2nd.sem..credited.}} - 1.222
+x_{\text{Curricular.units.2nd.sem..enrolled.}} - 0.239
+x_{\text{Curricular.units.2nd.sem..evaluations.}} + 1.772
+x_{\text{Curricular.units.2nd.sem..approved.}} + 0.044
+x_{\text{Curricular.units.2nd.sem..grade.}} + 0.266
+x_{\text{Curricular.units.2nd.sem..without.evaluations.}} - 0.094
+x_{\text{Unemployment.rate}} + 0.003 x_{\text{Mother.s.qualification}}
+x_{\text{Mother.s.occupation}} + 0.003 x_{\text{Mother.s.occupation}}
+x_{\text{Father.s.occupation}} + 0.244
+x_{\text{Curricular.units.1st.sem..enrolled.}}
+x_{\text{Curricular.units.1st.sem..without.evaluations.}} - 0.242
+x_{\text{Curricular.units.1st.sem..approved.}}
+x_{\text{Curricular.units.1st.sem..without.evaluations.}} + 0.061
+x_{\text{Curricular.units.2nd.sem..enrolled.}}
+x_{\text{Curricular.units.2nd.sem..evaluations.}} - 0.039
+x_{\text{Curricular.units.2nd.sem..evaluations.}}
+x_{\text{Curricular.units.2nd.sem..approved.}} + 0.061
+x_{\text{Curricular.units.2nd.sem..evaluations.}}
+x_{\text{Curricular.units.2nd.sem..without.evaluations.}} + 0.002
+x_{\text{Curricular.units.2nd.sem..approved.}}
+x_{\text{Curricular.units.2nd.sem..grade.}} + \epsilon\]</span></p>
 <p><strong>Comments: </strong></p>
 <ul>
 <li><p>Looking at the summary table the most effective predictor present
-in the model is <code>International</code> with a p-value of
-<code>0.027</code> and <code>0.005</code>, as well as a coefficient with
-magnitude of <code>2.263</code> and <code>3.382</code> when considering
-Enrolled vs. Dropout and Graduate and Graduate vs. Dropout
-respectively.</p></li>
-<li><p>The 95% confidence interval for the impact of
-<code>International</code> on the odds that a student is Enrolled vs
-Dropped out <code>(1.287883, 71.73652)</code>.</p></li>
-<li><p><em>Interpretation: </em> We are 95% confident that the odds that
-a student is Enrolled vs Dropped out change by a factor between
-<code>1.287883</code> and <code>71.73652</code> as we move from
-non-international to international.</p></li>
+in the model is <code>International</code> with a p-values of
+<code>0</code>, as well as a coefficient with magnitude of
+<code>2.354</code> and <code>3.579</code> when considering Enrolled
+vs. Dropout and Graduate and Graduate vs. Dropout respectively.</p></li>
+<li><p><em>Interpretation: </em></p></li>
 </ul>
 <pre class="r"><code>#Create Conf Matrix
 predClass &lt;- predict(bsModel, newData = studentDS, type = &quot;class&quot;)
@@ -1676,13 +1832,18 @@ predClass &lt;- predict(bsModel, newData = studentDS, type = &quot;class&quot;)
 table(predClass, studentDS$Target)</code></pre>
 <pre><code>##           
 ## predClass  Dropout Enrolled Graduate
-##   Dropout     1109      181       67
-##   Enrolled     122      276       95
-##   Graduate     190      337     2047</code></pre>
+##   Dropout     1090      167       66
+##   Enrolled     146      304       93
+##   Graduate     185      323     2050</code></pre>
 <pre class="r"><code>#Calculate Total Accuracy
-( 1109 + 276 + 2047) / nrow(studentDS)</code></pre>
-<pre><code>## [1] 0.7757685</code></pre>
+(1090 + 304 + 2050) / nrow(studentDS)</code></pre>
+<pre><code>## [1] 0.778481</code></pre>
 <p><strong>Comments: </strong></p>
+<ul>
+<li></li>
+</ul>
+</div>
+</div>
 </div>
 
 

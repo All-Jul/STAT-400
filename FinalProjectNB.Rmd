@@ -10,7 +10,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
 
-## Front Matter
+# Front Matter
 
 ```{r}
 rm(list = ls())
@@ -289,13 +289,19 @@ studentDS1 <- studentDS %>%
       Father.s.occupation == 46 ~ "Street vendors (except food) and street service providers",
       TRUE ~ "Other"
     )
-  ) %>% select(!Nacionality)
+  ) %>% 
+  dplyr::select( !Nacionality)
 
 ```
 
-## Introduction (Motivation)
+### Introduction (Motivation)
 
 
+
+
+
+
+# GLM Section
 
 **Research Questions: **
 
@@ -465,7 +471,7 @@ studentDS %>%
 library(reshape2)
 
 # Calculate correlation matrix
-corMat <- cor(studentDS %>% select(!Target & !sex), use = "complete.obs")
+corMat <- cor(studentDS %>% dplyr::select(!Target & !sex), use = "complete.obs")
 
 # Melt the correlation matrix
 corMelted <- melt(corMat)
@@ -515,7 +521,19 @@ library(MASS)
 ```{r}
 #Perform Backwards Selection
 baseModel <-  multinom(Target ~ 1, data = studentDS)
-fullModel <- multinom(Target ~ .-Target - sex, data = studentDS)
+fullModel <- multinom(Target ~ Marital.status + Application.mode + Application.order + 
+    Course + Daytime.evening.attendance + Previous.qualification + 
+    Nacionality + (Mother.s.qualification + Father.s.qualification + 
+    Mother.s.occupation + Father.s.occupation)^2 + Displaced + Educational.special.needs + 
+    (Debtor + Tuition.fees.up.to.date)^2 + Gender + Scholarship.holder + 
+    Age.at.enrollment + International + Curricular.units.1st.sem..credited. + 
+    (Curricular.units.1st.sem..enrolled. + Curricular.units.1st.sem..evaluations. + 
+    Curricular.units.1st.sem..approved. + Curricular.units.1st.sem..grade. + 
+    Curricular.units.1st.sem..without.evaluations.)^2 + (Curricular.units.2nd.sem..credited. + 
+    Curricular.units.2nd.sem..enrolled. + Curricular.units.2nd.sem..evaluations. + 
+    Curricular.units.2nd.sem..approved. + Curricular.units.2nd.sem..grade. + 
+    Curricular.units.2nd.sem..without.evaluations.)^2 + Unemployment.rate + 
+    Inflation.rate + GDP + International:Nacionality, data = studentDS)
 
 #stepModel <- stepAIC(fullModel, scope = list(lower = formula(baseModel), upper = formula(fullModel)), direction = "backward")
 ```
@@ -523,18 +541,30 @@ fullModel <- multinom(Target ~ .-Target - sex, data = studentDS)
 
 ```{r}
 #Model using variables selected using backwards selection
-bsModel <- multinom(Target ~ Application.mode + Application.order + Course + Previous.qualification + 
-    Nacionality + Mother.s.qualification + Mother.s.occupation + 
+bsModel <- multinom(Target ~ Application.order + Course + Nacionality + Mother.s.qualification + 
+    Father.s.qualification + Mother.s.occupation + Father.s.occupation + 
     Displaced + Debtor + Tuition.fees.up.to.date + Gender + Scholarship.holder + 
     Age.at.enrollment + International + Curricular.units.1st.sem..credited. + 
-    Curricular.units.1st.sem..evaluations. + Curricular.units.1st.sem..approved. + 
-    Curricular.units.1st.sem..grade. + Curricular.units.2nd.sem..credited. + 
+    Curricular.units.1st.sem..enrolled. + Curricular.units.1st.sem..approved. + 
+    Curricular.units.1st.sem..without.evaluations. + Curricular.units.2nd.sem..credited. + 
     Curricular.units.2nd.sem..enrolled. + Curricular.units.2nd.sem..evaluations. + 
     Curricular.units.2nd.sem..approved. + Curricular.units.2nd.sem..grade. + 
-    Curricular.units.2nd.sem..without.evaluations. + Unemployment.rate, data = studentDS)
+    Curricular.units.2nd.sem..without.evaluations. + Unemployment.rate + 
+    Mother.s.qualification:Mother.s.occupation + Mother.s.occupation:Father.s.occupation + 
+    Curricular.units.1st.sem..enrolled.:Curricular.units.1st.sem..without.evaluations. + 
+    Curricular.units.1st.sem..approved.:Curricular.units.1st.sem..without.evaluations. + 
+    Curricular.units.2nd.sem..credited.:Curricular.units.2nd.sem..evaluations. + 
+    Curricular.units.2nd.sem..credited.:Curricular.units.2nd.sem..approved. + 
+    Curricular.units.2nd.sem..credited.:Curricular.units.2nd.sem..without.evaluations. + 
+    Curricular.units.2nd.sem..enrolled.:Curricular.units.2nd.sem..evaluations. + 
+    Curricular.units.2nd.sem..enrolled.:Curricular.units.2nd.sem..approved. + 
+    Curricular.units.2nd.sem..enrolled.:Curricular.units.2nd.sem..without.evaluations. + 
+    Curricular.units.2nd.sem..evaluations.:Curricular.units.2nd.sem..approved. + 
+    Curricular.units.2nd.sem..evaluations.:Curricular.units.2nd.sem..without.evaluations. + 
+    Curricular.units.2nd.sem..approved.:Curricular.units.2nd.sem..grade., data = studentDS)
 
 #Summary Table
-tidy(bsModel, conf.int = TRUE, exponentiate = FALSE) %>%
+tidy(bsModel, conf.int = FALSE, exponentiate = FALSE) %>%
   kable(digits = 3, format = "markdown")
 ```
 
@@ -543,19 +573,24 @@ tidy(bsModel, conf.int = TRUE, exponentiate = FALSE) %>%
 
 - The formula's for the multinomial model are as follows: 
 
-$$\log\left(\frac{\hat{p}_{i, \text{Enrolled}}}{\hat{p}_{i, \text{Dropout}}}\right) = 0.1247949 + 0.009149317 x_{\text{Application.mode}} - 0.1084979 x_{\text{Application.order}} - 0.05984535 x_{\text{Course}} - 0.007143544 x_{\text{Previous.qualification}} - 0.1607959 x_{\text{Nacionality}} - 0.028105054 x_{\text{Mother.s.qualification}} + 0.08921911 x_{\text{Mother.s.occupation}} - 0.3389803 x_{\text{Displaced}} - 0.2269397 x_{\text{Debtor}} + 1.981863 x_{\text{Tuition.fees.up.to.date}} - 0.2478873 x_{\text{Gender}} + 0.07732892 x_{\text{Scholarship.holder}} - 0.04821212 x_{\text{Age.at.enrollment}} + 2.26295 x_{\text{International}} - 0.06734891 x_{\text{Curricular.units.1st.sem..credited.}} + 0.03514532 x_{\text{Curricular.units.1st.sem..evaluations.}} + 0.118055 x_{\text{Curricular.units.1st.sem..approved.}} - 0.04355277 x_{\text{Curricular.units.1st.sem..grade.}} - 0.22199676 x_{\text{Curricular.units.2nd.sem..credited.}} - 0.3572505 x_{\text{Curricular.units.2nd.sem..enrolled.}} + 0.09406026 x_{\text{Curricular.units.2nd.sem..evaluations.}} + 0.3631424 x_{\text{Curricular.units.2nd.sem..approved.}} + 0.07983063 x_{\text{Curricular.units.2nd.sem..grade.}} + 0.0943232 x_{\text{Curricular.units.2nd.sem..without.evaluations.}} - 0.10141801 x_{\text{Unemployment.rate}} + \epsilon$$
+**Enrolled vs Dropout: **
 
-$$\log\left(\frac{\hat{p}_{i, \text{Graduate}}}{\hat{p}_{i, \text{Dropout}}}\right) = -0.3130005 - 0.015365970 x_{\text{Application.mode}} - 0.0764883 x_{\text{Application.order}} - 0.10971874 x_{\text{Course}} + 0.027356904 x_{\text{Previous.qualification}} - 0.2458373 x_{\text{Nacionality}} - 0.008394626 x_{\text{Mother.s.qualification}} + 0.06949083 x_{\text{Mother.s.occupation}} - 0.3178092 x_{\text{Displaced}} - 1.0343931 x_{\text{Debtor}} + 3.069092 x_{\text{Tuition.fees.up.to.date}} - 0.5051549 x_{\text{Gender}} + 0.73427631 x_{\text{Scholarship.holder}} - 0.04392779 x_{\text{Age.at.enrollment}} + 3.382372 x_{\text{International}} - 0.28985793 x_{\text{Curricular.units.1st.sem..credited}} - 0.04487982 x_{\text{Curricular.units.1st.sem..evaluations}} + 0.6676107 x_{\text{Curricular.units.1st.sem..approved}} - 0.10231861 x_{\text{Curricular.units.1st.sem..grade}} - 0.08366331 x_{\text{Curricular.units.2nd.sem..credited}} - 1.1051600 x_{\text{Curricular.units.2nd.sem..enrolled}} - 0.01985748 x_{\text{Curricular.units.2nd.sem..evaluations}} + 1.1129269 x_{\text{Curricular.units.2nd.sem..approved}} + 0.14357216 x_{\text{Curricular.units.2nd.sem..grade}} + 0.2142498 x_{\text{Curricular.units.2nd.sem..without.evaluations}} - 0.08581726 x_{\text{Unemployment.rate}} + \epsilon$$
+Certainly! Here's the updated formula for the "Enrolled vs Dropout" model without using the line continuation symbol:
+
+### Corrected Enrolled vs Dropout Model Including Missed Interactions
+
+
+$$\log\left(\frac{\hat{p}_{i, \text{Enrolled}}}{\hat{p}_{i, \text{Dropout}}}\right) = 0.030 - 0.116 x_{\text{Application.order}} - 0.069 x_{\text{Course}} - 0.158 x_{\text{Nacionality}} - 0.058 x_{\text{Mother.s.qualification}} + 0.001 x_{\text{Mother.s.occupation}} - 0.330 x_{\text{Displaced}} - 0.259 x_{\text{Debtor}} + 2.014 x_{\text{Tuition.fees.up.to.date}} - 0.239 x_{\text{Gender}} + 0.051 x_{\text{Scholarship.holder}} - 0.043 x_{\text{Age.at.enrollment}} + 2.354 x_{\text{International}} - 0.023 x_{\text{Curricular.units.1st.sem..credited.}} - 0.023 x_{\text{Curricular.units.1st.sem..enrolled.}} + 0.080 x_{\text{Curricular.units.1st.sem..approved.}} - 0.373 x_{\text{Curricular.units.2nd.sem..credited.}} - 0.327 x_{\text{Curricular.units.2nd.sem..enrolled.}} + 0.209 x_{\text{Curricular.units.2nd.sem..evaluations.}} + 0.964 x_{\text{Curricular.units.2nd.sem..approved.}} + 0.079 x_{\text{Curricular.units.2nd.sem..grade.}} - 1.079 x_{\text{Curricular.units.2nd.sem..without.evaluations.}} - 0.085 x_{\text{Unemployment.rate}} + 0.004 x_{\text{Mother.s.qualification}} x_{\text{Mother.s.occupation}} + 0.001 x_{\text{Mother.s.occupation}} x_{\text{Father.s.occupation}} - 0.018 x_{\text{Curricular.units.1st.sem..enrolled.}} x_{\text{Curricular.units.1st.sem..without.evaluations.}} - 0.059 x_{\text{Curricular.units.1st.sem..approved.}} x_{\text{Curricular.units.1st.sem..without.evaluations.}} + 0.032 x_{\text{Curricular.units.2nd.sem..credited.}} x_{\text{Curricular.units.2nd.sem..evaluations.}} + 0.228 x_{\text{Curricular.units.2nd.sem..enrolled.}} x_{\text{Curricular.units.2nd.sem..without.evaluations.}} - 0.006 x_{\text{Curricular.units.2nd.sem..evaluations.}} x_{\text{Curricular.units.2nd.sem..approved.}} - 0.026 x_{\text{Curricular.units.2nd.sem..evaluations.}} x_{\text{Curricular.units.2nd.sem..without.evaluations.}} - 0.048 x_{\text{Curricular.units.2nd.sem..approved.}} x_{\text{Curricular.units.2nd.sem..grade.}} + \epsilon$$
+
+**Graduate vs Dropout: **
+
+$$\log\left(\frac{\hat{p}_{i, \text{Graduate}}}{\hat{p}_{i, \text{Dropout}}}\right) = 0.330 - 0.088 x_{\text{Application.order}} - 0.120 x_{\text{Course}} - 0.257 x_{\text{Nacionality}} - 0.032 x_{\text{Mother.s.qualification}} - 0.008 x_{\text{Mother.s.occupation}} - 0.305 x_{\text{Displaced}} - 1.019 x_{\text{Debtor}} + 3.139 x_{\text{Tuition.fees.up.to.date}} - 0.492 x_{\text{Gender}} + 0.730 x_{\text{Scholarship.holder}} - 0.047 x_{\text{Age.at.enrollment}} + 3.579 x_{\text{International}} - 0.241 x_{\text{Curricular.units.1st.sem..credited.}} - 0.286 x_{\text{Curricular.units.1st.sem..enrolled.}} + 0.755 x_{\text{Curricular.units.1st.sem..approved.}} - 0.677 x_{\text{Curricular.units.1st.sem..without.evaluations.}} - 0.180 x_{\text{Curricular.units.2nd.sem..credited.}} - 1.222 x_{\text{Curricular.units.2nd.sem..enrolled.}} - 0.239 x_{\text{Curricular.units.2nd.sem..evaluations.}} + 1.772 x_{\text{Curricular.units.2nd.sem..approved.}} + 0.044 x_{\text{Curricular.units.2nd.sem..grade.}} + 0.266 x_{\text{Curricular.units.2nd.sem..without.evaluations.}} - 0.094 x_{\text{Unemployment.rate}} + 0.003 x_{\text{Mother.s.qualification}} x_{\text{Mother.s.occupation}} + 0.003 x_{\text{Mother.s.occupation}} x_{\text{Father.s.occupation}} + 0.244 x_{\text{Curricular.units.1st.sem..enrolled.}} x_{\text{Curricular.units.1st.sem..without.evaluations.}} - 0.242 x_{\text{Curricular.units.1st.sem..approved.}} x_{\text{Curricular.units.1st.sem..without.evaluations.}} + 0.061 x_{\text{Curricular.units.2nd.sem..enrolled.}} x_{\text{Curricular.units.2nd.sem..evaluations.}} - 0.039 x_{\text{Curricular.units.2nd.sem..evaluations.}} x_{\text{Curricular.units.2nd.sem..approved.}} + 0.061 x_{\text{Curricular.units.2nd.sem..evaluations.}} x_{\text{Curricular.units.2nd.sem..without.evaluations.}} + 0.002 x_{\text{Curricular.units.2nd.sem..approved.}} x_{\text{Curricular.units.2nd.sem..grade.}} + \epsilon$$
 
 **Comments: **
 
-- Looking at the summary table the most effective predictor present in the model is `International` with a p-value of `0.027` and  `0.005`, as well as a coefficient with magnitude of `2.263` and `3.382` when considering Enrolled vs. Dropout and Graduate and Graduate vs. Dropout respectively.
+- Looking at the summary table the most effective predictor present in the model is `International` with a p-values of `0`, as well as a coefficient with magnitude of `2.354` and `3.579` when considering Enrolled vs. Dropout and Graduate and Graduate vs. Dropout respectively.
 
-- The 95% confidence interval for the impact of `International` on the odds that a student is Enrolled vs Dropped out `(1.287883, 71.73652)`.
-
-- *Interpretation: * We are 95% confident that the odds that a student is Enrolled vs Dropped out change by a factor between  `1.287883` and `71.73652` as we move from non-international to international.
-
-
+- *Interpretation: * 
 
 
 ```{r}
@@ -567,9 +602,9 @@ table(predClass, studentDS$Target)
 
 ```{r}
 #Calculate Total Accuracy
-( 1109 + 276 + 2047) / nrow(studentDS)
+(1090 + 304 + 2050) / nrow(studentDS)
 ```
 
 **Comments: **
 
-
+- 
