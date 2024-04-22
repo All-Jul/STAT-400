@@ -556,10 +556,6 @@ $$\log\left(\frac{\hat{p}_{i, \text{Graduate}}}{\hat{p}_{i, \text{Dropout}}}\rig
 - *Interpretation: * We are 95% confident that the odds that a student is Enrolled vs Dropped out change by a factor between  `1.287883` and `71.73652` as we move from non-international to international.
 
 
-- 
-
-
-
 
 
 ```{r}
