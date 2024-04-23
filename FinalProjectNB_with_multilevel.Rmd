@@ -1,0 +1,1338 @@
+<<<<<<< Updated upstream
+---
+title: "Final Project"
+author: "Sean Burke, Allan Julian, Jared Hayes" 
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+# Front Matter
+
+```{r}
+rm(list = ls())
+library(tidyverse)
+library(boastUtils)
+library(ggcorrplot)
+library(kableExtra)
+library(broom)
+
+studentDS <- read.csv("StudentSucessDataset.csv")
+
+```
+
+```{r, include = FALSE}
+studentDS1 <- studentDS %>%
+  mutate(
+    Marital.status = case_when(
+      Marital.status == 1 ~ "Single",
+      Marital.status == 2 ~ "Married",
+      Marital.status == 3 ~ "Widower",
+      Marital.status == 4 ~ "Divorced",
+      Marital.status == 5 ~ "Facto union",
+      Marital.status == 6 ~ "Legally separated",
+      TRUE ~ "Other"  # Adding an 'Other' category for any unexpected values
+    ),
+    Nationality = Nacionality,
+    Nationality = case_when(
+      Nationality == 1 ~ "Portuguese",
+      Nationality == 2 ~ "German",
+      Nationality == 3 ~ "Spanish",
+      Nationality == 4 ~ "Italian",
+      Nationality == 5 ~ "Dutch",
+      Nationality == 6 ~ "English",
+      Nationality == 7 ~ "Lithuanian",
+      Nationality == 8 ~ "Angolan",
+      Nationality == 9 ~ "Cape Verdean",
+      Nationality == 10 ~ "Guinean",
+      Nationality == 11 ~ "Mozambican",
+      Nationality == 12 ~ "Santomean",
+      Nationality == 13 ~ "Turkish",
+      Nationality == 14 ~ "Brazilian",
+      Nationality == 15 ~ "Romanian",
+      Nationality == 16 ~ "Moldova (Republic of)",
+      Nationality == 17 ~ "Mexican",
+      Nationality == 18 ~ "Ukrainian",
+      Nationality == 19 ~ "Russian",
+      Nationality == 20 ~ "Cuban",
+      Nationality == 21 ~ "Colombian",
+      TRUE ~ "Other"
+    ),
+    Application.mode = case_when(
+      Application.mode == 1 ~ "1st phase—general contingent",
+      Application.mode == 2 ~ "Ordinance No. 612/93",
+      Application.mode == 3 ~ "1st phase—special contingent (Azores Island)",
+      Application.mode == 4 ~ "Holders of other higher courses",
+      Application.mode == 5 ~ "Ordinance No. 854-B/99",
+      Application.mode == 6 ~ "International student (bachelor)",
+      Application.mode == 7 ~ "1st phase—special contingent (Madeira Island)",
+      Application.mode == 8 ~ "2nd phase—general contingent",
+      Application.mode == 9 ~ "3rd phase—general contingent",
+      Application.mode == 10 ~ "Ordinance No. 533-A/99, item b2) (Different Plan)",
+      Application.mode == 11 ~ "Ordinance No. 533-A/99, item b3 (Other Institution)",
+      Application.mode == 12 ~ "Over 23 years old",
+      Application.mode == 13 ~ "Transfer",
+      Application.mode == 14 ~ "Change in course",
+      Application.mode == 15 ~ "Technological specialization diploma holders",
+      Application.mode == 16 ~ "Change in institution/course",
+      Application.mode == 17 ~ "Short cycle diploma holders",
+      Application.mode == 18 ~ "Change in institution/course (International)",
+      TRUE ~ "Other"
+    ),
+    Course = case_when(
+      Course == 1 ~ "Biofuel Production Technologies",
+      Course == 2 ~ "Animation and Multimedia Design",
+      Course == 3 ~ "Social Service (evening attendance)",
+      Course == 4 ~ "Agronomy",
+      Course == 5 ~ "Communication Design",
+      Course == 6 ~ "Veterinary Nursing",
+      Course == 7 ~ "Informatics Engineering",
+      Course == 8 ~ "Equiniculture",
+      Course == 9 ~ "Management",
+      Course == 10 ~ "Social Service",
+      Course == 11 ~ "Tourism",
+      Course == 12 ~ "Nursing",
+      Course == 13 ~ "Oral Hygiene",
+      Course == 14 ~ "Advertising and Marketing Management",
+      Course == 15 ~ "Journalism and Communication",
+      Course == 16 ~ "Basic Education",
+      Course == 17 ~ "Management (evening attendance)",
+      TRUE ~ "Other"
+    ),
+    Previous.qualification = case_when(
+      Previous.qualification == 1 ~ "Secondary education",
+      Previous.qualification == 2 ~ "Higher education—bachelor’s degree",
+      Previous.qualification == 3 ~ "Higher education—degree",
+      Previous.qualification == 4 ~ "Higher education—master’s degree",
+      Previous.qualification == 5 ~ "Higher education—doctorate",
+      Previous.qualification == 6 ~ "Frequency of higher education",
+      Previous.qualification == 7 ~ "12th year of schooling—not completed",
+      Previous.qualification == 8 ~ "11th year of schooling—not completed",
+      Previous.qualification == 9 ~ "Other—11th year of schooling",
+      Previous.qualification == 10 ~ "10th year of schooling",
+      Previous.qualification == 11 ~ "10th year of schooling—not completed",
+      Previous.qualification == 12 ~ "Basic education 3rd cycle (9th/10th/11th year) or equivalent",
+      Previous.qualification == 13 ~ "Basic education 2nd cycle (6th/7th/8th year) or equivalent",
+      Previous.qualification == 14 ~ "Technological specialization course",
+      Previous.qualification == 15 ~ "Higher education—degree (1st cycle)",
+      Previous.qualification == 16 ~ "Professional higher technical course",
+      Previous.qualification == 17 ~ "Higher education—master’s degree (2nd cycle)",
+      TRUE ~ "Other"
+    ),
+     Mother.s.qualification = case_when(
+      Mother.s.qualification == 1 ~ "Secondary Education—12th Year of Schooling or Equivalent",
+      Mother.s.qualification == 2 ~ "Higher Education—bachelor’s degree",
+      Mother.s.qualification == 3 ~ "Higher Education—degree",
+      Mother.s.qualification == 4 ~ "Higher Education—master’s degree",
+      Mother.s.qualification == 5 ~ "Higher Education—doctorate",
+      Mother.s.qualification == 6 ~ "Frequency of Higher Education",
+      Mother.s.qualification == 7 ~ "12th Year of Schooling—not completed",
+      Mother.s.qualification == 8 ~ "11th Year of Schooling—not completed",
+      Mother.s.qualification == 9 ~ "7th Year (Old)",
+      Mother.s.qualification == 10 ~ "Other—11th Year of Schooling",
+      Mother.s.qualification == 11 ~ "2nd year complementary high school course",
+      Mother.s.qualification == 12 ~ "10th Year of Schooling",
+      Mother.s.qualification == 13 ~ "General commerce course",
+      Mother.s.qualification == 14 ~ "Basic Education 3rd Cycle (9th/10th/11th Year) or Equivalent",
+      Mother.s.qualification == 15 ~ "Complementary High School Course",
+      Mother.s.qualification == 16 ~ "Technical-professional course",
+      Mother.s.qualification == 17 ~ "Complementary High School Course—not concluded",
+      Mother.s.qualification == 18 ~ "7th year of schooling",
+      Mother.s.qualification == 19 ~ "2nd cycle of the general high school course",
+      Mother.s.qualification == 20 ~ "9th Year of Schooling—not completed",
+      Mother.s.qualification == 21 ~ "8th year of schooling",
+      Mother.s.qualification == 22 ~ "General Course of Administration and Commerce",
+      Mother.s.qualification == 23 ~ "Supplementary Accounting and Administration",
+      Mother.s.qualification == 24 ~ "Unknown",
+      Mother.s.qualification == 25 ~ "Cannot read or write",
+      Mother.s.qualification == 26 ~ "Can read without having a 4th year of schooling",
+      Mother.s.qualification == 27 ~ "Basic education 1st cycle (4th/5th year) or equivalent",
+      Mother.s.qualification == 28 ~ "Basic Education 2nd Cycle (6th/7th/8th Year) or equivalent",
+      Mother.s.qualification == 29 ~ "Technological specialization course",
+      Mother.s.qualification == 30 ~ "Higher education—degree (1st cycle)",
+      Mother.s.qualification == 31 ~ "Specialized higher studies course",
+      Mother.s.qualification == 32 ~ "Professional higher technical course",
+      Mother.s.qualification == 33 ~ "Higher Education—master’s degree (2nd cycle)",
+      Mother.s.qualification == 34 ~ "Higher Education—doctorate (3rd cycle)",
+      TRUE ~ "Other"),
+     Father.s.qualification = case_when(
+      Father.s.qualification == 1 ~ "Secondary Education—12th Year of Schooling or Equivalent",
+      Father.s.qualification == 2 ~ "Higher Education—bachelor’s degree",
+      Father.s.qualification == 3 ~ "Higher Education—degree",
+      Father.s.qualification == 4 ~ "Higher Education—master’s degree",
+      Father.s.qualification == 5 ~ "Higher Education—doctorate",
+      Father.s.qualification == 6 ~ "Frequency of Higher Education",
+      Father.s.qualification == 7 ~ "12th Year of Schooling—not completed",
+      Father.s.qualification == 8 ~ "11th Year of Schooling—not completed",
+      Father.s.qualification == 9 ~ "7th Year (Old)",
+      Father.s.qualification == 10 ~ "Other—11th Year of Schooling",
+      Father.s.qualification == 11 ~ "2nd year complementary high school course",
+      Father.s.qualification == 12 ~ "10th Year of Schooling",
+      Father.s.qualification == 13 ~ "General commerce course",
+      Father.s.qualification == 14 ~ "Basic Education 3rd Cycle (9th/10th/11th Year) or Equivalent",
+      Father.s.qualification == 15 ~ "Complementary High School Course",
+      Father.s.qualification == 16 ~ "Technical-professional course",
+      Father.s.qualification == 17 ~ "Complementary High School Course—not concluded",
+      Father.s.qualification == 18 ~ "7th year of schooling",
+      Father.s.qualification == 19 ~ "2nd cycle of the general high school course",
+      Father.s.qualification == 20 ~ "9th Year of Schooling—not completed",
+      Father.s.qualification == 21 ~ "8th year of schooling",
+      Father.s.qualification == 22 ~ "General Course of Administration and Commerce",
+      Father.s.qualification == 23 ~ "Supplementary Accounting and Administration",
+      Father.s.qualification == 24 ~ "Unknown",
+      Father.s.qualification == 25 ~ "Cannot read or write",
+      Father.s.qualification == 26 ~ "Can read without having a 4th year of schooling",
+      Father.s.qualification == 27 ~ "Basic education 1st cycle (4th/5th year) or equivalent",
+      Father.s.qualification == 28 ~ "Basic Education 2nd Cycle (6th/7th/8th Year) or equivalent",
+      Father.s.qualification == 29 ~ "Technological specialization course",
+      Father.s.qualification == 30 ~ "Higher education—degree (1st cycle)",
+      Father.s.qualification == 31 ~ "Specialized higher studies course",
+      Father.s.qualification == 32 ~ "Professional higher technical course",
+      Father.s.qualification == 33 ~ "Higher Education—master’s degree (2nd cycle)",
+      Father.s.qualification == 34 ~ "Higher Education—doctorate (3rd cycle)",
+      TRUE ~ "Other"),
+     Mother.s.occupation = case_when(
+      Mother.s.occupation == 1 ~ "Student",
+      Mother.s.occupation == 2 ~ "Representatives of the Legislative Power and Executive Bodies, Directors, and Executive Managers",
+      Mother.s.occupation == 3 ~ "Specialists in Intellectual and Scientific Activities",
+      Mother.s.occupation == 4 ~ "Intermediate Level Technicians and Professions",
+      Mother.s.occupation == 5 ~ "Administrative staff",
+      Mother.s.occupation == 6 ~ "Personal Services, Security and Safety Workers, and Sellers",
+      Mother.s.occupation == 7 ~ "Farmers and Skilled Workers in Agriculture, Fisheries, and Forestry",
+      Mother.s.occupation == 8 ~ "Skilled Workers in Industry, Construction, and Craftsmen",
+      Mother.s.occupation == 9 ~ "Installation and Machine Operators and Assembly Workers",
+      Mother.s.occupation == 10 ~ "Unskilled Workers",
+      Mother.s.occupation == 11 ~ "Armed Forces Professions",
+      Mother.s.occupation == 12 ~ "Other Situation",
+      Mother.s.occupation == 13 ~ "",  # blank for 13 as specified
+      Mother.s.occupation == 14 ~ "Armed Forces Officers",
+      Mother.s.occupation == 15 ~ "Armed Forces Sergeants",
+      Mother.s.occupation == 16 ~ "Other Armed Forces personnel",
+      Mother.s.occupation == 17 ~ "Directors of administrative and commercial services",
+      Mother.s.occupation == 18 ~ "Hotel, catering, trade, and other services directors",
+      Mother.s.occupation == 19 ~ "Specialists in the physical sciences, mathematics, engineering, and related techniques",
+      Mother.s.occupation == 20 ~ "Health professionals",
+      Mother.s.occupation == 21 ~ "Teachers",
+      Mother.s.occupation == 22 ~ "Specialists in finance, accounting, administrative organization, and public and commercial relations",
+      Mother.s.occupation == 23 ~ "Intermediate level science and engineering technicians and professions",
+      Mother.s.occupation == 24 ~ "Technicians and professionals of intermediate level of health",
+      Mother.s.occupation == 25 ~ "Intermediate level technicians from legal, social, sports, cultural, and similar services",
+      Mother.s.occupation == 26 ~ "Information and communication technology technicians",
+      Mother.s.occupation == 27 ~ "Office workers, secretaries in general, and data processing operators",
+      Mother.s.occupation == 28 ~ "Data, accounting, statistical, financial services, and registry-related operators",
+      Mother.s.occupation == 29 ~ "Other administrative support staff",
+      Mother.s.occupation == 30 ~ "Personal service workers",
+      Mother.s.occupation == 31 ~ "Sellers",
+      Mother.s.occupation == 32 ~ "Personal care workers and the like",
+      Mother.s.occupation == 33 ~ "Protection and security services personnel",
+      Mother.s.occupation == 34 ~ "Market-oriented farmers and skilled agricultural and animal production workers",
+      Mother.s.occupation == 35 ~ "Farmers, livestock keepers, fishermen, hunters and gatherers, and subsistence",
+      Mother.s.occupation == 36 ~ "Skilled construction workers and the like, except electricians",
+      Mother.s.occupation == 37 ~ "Skilled workers in metallurgy, metalworking, and similar",
+      Mother.s.occupation == 38 ~ "Skilled workers in electricity and electronics",
+      Mother.s.occupation == 39 ~ "Workers in food processing, woodworking, clothing and other industries and crafts",
+      Mother.s.occupation == 40 ~ "Fixed plant and machine operators",
+      Mother.s.occupation == 41 ~ "Assembly workers",
+      Mother.s.occupation == 42 ~ "Vehicle drivers and mobile equipment operators",
+      Mother.s.occupation == 43 ~ "Unskilled workers in agriculture, animal production, and fisheries and forestry",
+      Mother.s.occupation == 44 ~ "Unskilled workers in extractive industry, construction, manufacturing, and transport",
+      Mother.s.occupation == 45 ~ "Meal preparation assistants",
+      Mother.s.occupation == 46 ~ "Street vendors (except food) and street service providers",
+      TRUE ~ "Other"
+    ),
+    Father.s.occupation = case_when(
+      Father.s.occupation == 1 ~ "Student",
+      Father.s.occupation == 2 ~ "Representatives of the Legislative Power and Executive Bodies, Directors, and Executive Managers",
+      Father.s.occupation == 3 ~ "Specialists in Intellectual and Scientific Activities",
+      Father.s.occupation == 4 ~ "Intermediate Level Technicians and Professions",
+      Father.s.occupation == 5 ~ "Administrative staff",
+      Father.s.occupation == 6 ~ "Personal Services, Security and Safety Workers, and Sellers",
+      Father.s.occupation == 7 ~ "Farmers and Skilled Workers in Agriculture, Fisheries, and Forestry",
+      Father.s.occupation == 8 ~ "Skilled Workers in Industry, Construction, and Craftsmen",
+      Father.s.occupation == 9 ~ "Installation and Machine Operators and Assembly Workers",
+      Father.s.occupation == 10 ~ "Unskilled Workers",
+      Father.s.occupation == 11 ~ "Armed Forces Professions",
+      Father.s.occupation == 12 ~ "Other Situation",
+      Father.s.occupation == 13 ~ "",  # blank for 13 as specified
+      Father.s.occupation == 14 ~ "Armed Forces Officers",
+      Father.s.occupation == 15 ~ "Armed Forces Sergeants",
+      Father.s.occupation == 16 ~ "Other Armed Forces personnel",
+      Father.s.occupation == 17 ~ "Directors of administrative and commercial services",
+      Father.s.occupation == 18 ~ "Hotel, catering, trade, and other services directors",
+      Father.s.occupation == 19 ~ "Specialists in the physical sciences, mathematics, engineering, and related techniques",
+      Father.s.occupation == 20 ~ "Health professionals",
+      Father.s.occupation == 21 ~ "Teachers",
+      Father.s.occupation == 22 ~ "Specialists in finance, accounting, administrative organization, and public and commercial relations",
+      Father.s.occupation == 23 ~ "Intermediate level science and engineering technicians and professions",
+      Father.s.occupation == 24 ~ "Technicians and professionals of intermediate level of health",
+      Father.s.occupation == 25 ~ "Intermediate level technicians from legal, social, sports, cultural, and similar services",
+      Father.s.occupation == 26 ~ "Information and communication technology technicians",
+      Father.s.occupation == 27 ~ "Office workers, secretaries in general, and data processing operators",
+      Father.s.occupation == 28 ~ "Data, accounting, statistical, financial services, and registry-related operators",
+      Father.s.occupation == 29 ~ "Other administrative support staff",
+      Father.s.occupation == 30 ~ "Personal service workers",
+      Father.s.occupation == 31 ~ "Sellers",
+      Father.s.occupation == 32 ~ "Personal care workers and the like",
+      Father.s.occupation == 33 ~ "Protection and security services personnel",
+      Father.s.occupation == 34 ~ "Market-oriented farmers and skilled agricultural and animal production workers",
+      Father.s.occupation == 35 ~ "Farmers, livestock keepers, fishermen, hunters and gatherers, and subsistence",
+      Father.s.occupation == 36 ~ "Skilled construction workers and the like, except electricians",
+      Father.s.occupation == 37 ~ "Skilled workers in metallurgy, metalworking, and similar",
+      Father.s.occupation == 38 ~ "Skilled workers in electricity and electronics",
+      Father.s.occupation == 39 ~ "Workers in food processing, woodworking, clothing and other industries and crafts",
+      Father.s.occupation == 40 ~ "Fixed plant and machine operators",
+      Father.s.occupation == 41 ~ "Assembly workers",
+      Father.s.occupation == 42 ~ "Vehicle drivers and mobile equipment operators",
+      Father.s.occupation == 43 ~ "Unskilled workers in agriculture, animal production, and fisheries and forestry",
+      Father.s.occupation == 44 ~ "Unskilled workers in extractive industry, construction, manufacturing, and transport",
+      Father.s.occupation == 45 ~ "Meal preparation assistants",
+      Father.s.occupation == 46 ~ "Street vendors (except food) and street service providers",
+      TRUE ~ "Other"
+    )
+  ) %>% 
+  dplyr::select( !Nacionality)
+
+```
+
+### Introduction (Motivation)
+
+# GLM Section
+
+**Research Questions:**
+
+-   What variables are best when predicting the student status `Target`?
+
+-   When creating a model with said variables, which are most effective when predicting the student status?
+
+## Explanatory Data Analysis (EDA)
+
+```{r}
+#See couple rows of data
+glimpse(studentDS1, 4)
+```
+
+```{r}
+#View Proportion of Student Status
+ggplot(
+  data = studentDS,
+  mapping = aes(x = Target, fill = Target)
+) +
+  geom_bar(color = "black") +
+  scale_fill_manual(values = c(psuPalette[2], boastPalette[3], boastPalette[1])) +
+  theme(
+    legend.position = "none"
+  ) +
+  labs(
+    title = "Bar Chart of Student Status",
+   x = "Student Status",
+   y = "Frequency"
+  )
+```
+
+**Comments:**
+
+-   Looking at the status of the students, here are three categories or levels: "Dropout", "Enrolled", and "Graduate".
+
+-   If we are interested in creating a predictive model we can create a multinomial model predicting for this status.
+
+-   Then, we can find what variables are best in predicting this status
+
+```{r}
+#Create Sex Variable
+studentDS <- studentDS %>%
+  mutate(sex = ifelse(Gender == 1, "Male", "Female"))
+#View Proportion of Student Status
+ggplot(
+  data = studentDS,
+  mapping = aes(x = Target, fill = Target)
+) +
+  geom_bar(color = "black") + 
+  facet_wrap(sex ~ .) +
+  scale_fill_manual(values = c(psuPalette[2], boastPalette[3], boastPalette[1])) +
+    theme(
+    legend.position = "none"
+  ) +
+  labs(
+    title = "Bar Chart of Student Status by Gender",
+   x = "Student Status",
+   y = "Frequency"
+  )
+
+#View counts and frequency by male and female
+studentDS %>%
+  group_by(sex) %>%
+  summarize(
+    N = n(),
+    propGrad = NROW(which(Target == "Graduate"))/N,
+    propEnroll = NROW(which(Target == "Enrolled"))/N,
+    propDrop =  NROW(which(Target == "Dropout"))/N
+    ) %>%
+  kable()
+```
+
+**Comments:**
+
+-   Looking at the plots and summary data, we find there is a higher proportion of female graduates than male graduates when comparing the two genders.
+
+-   Similarly we find that there are a higher proportion of male dropouts than female dropouts, even though the number of dropouts appear to be similar.
+
+-   This indicates that gender may be a good indicator for the student status or success.
+
+```{r}
+#View Proportion of Student Status by time of attendance
+ggplot(
+  data = studentDS1,
+  mapping = aes(x = Target, fill = Target)
+) +
+  geom_bar(color = "black") +
+  scale_fill_manual(values = c(psuPalette[2], boastPalette[3], boastPalette[1])) +
+  theme(
+    legend.position = "none"
+  ) +
+  labs(
+    title = "Bar Chart of Student Status by Time of Attendance",
+   x = "Student Status",
+   y = "Frequency"
+  ) +
+  facet_wrap(as.factor(Daytime.evening.attendance)~.)
+  
+  studentDS %>%
+    group_by(as.factor(Daytime.evening.attendance)) %>%
+    summarize(
+      N = n(),
+      propGrad = NROW(which(Target == "Graduate"))/N,
+      propEnroll = NROW(which(Target == "Enrolled"))/N,
+      propDrop =  NROW(which(Target == "Dropout"))/N
+    ) %>%
+    kable()
+```
+
+`NOTE:` `1` indicates daytime attendance and `0` indicates night time attendance.
+
+**Comments:**
+
+-   Here, we see we have a lot more daytime attendance. However, there is a slightly higher proportion of graduates and enrolled and a lesser proportion of dropouts for the daytime group.
+
+```{r}
+#Calculate means
+meanGrade1 <- studentDS %>% 
+  group_by(Target) %>%
+  summarize(
+    N = n(),
+    avgGrade = mean(Curricular.units.1st.sem..grade.)
+  )
+
+#Box plot for 1st semester
+ggplot(
+  data = studentDS1,
+  mapping = aes(x = Target, y = Curricular.units.1st.sem..grade.)
+  ) +
+    geom_boxplot() +
+  geom_point(
+    data = meanGrade1,
+    mapping = aes(x = Target, y = avgGrade, color = "Mean of Grade"),
+    shape = 6,
+    size = 2
+  ) +
+  scale_color_manual(values = psuPalette[2], name = "", labels = "Mean of Grade") + 
+  theme(legend.position = "bottom")
+
+studentDS %>%
+    group_by(Target) %>%
+    summarize(
+      N = n(),
+      minGrade = min(Curricular.units.1st.sem..grade.),
+      avgGrade = mean(Curricular.units.1st.sem..grade.),
+      medianGrade = median(Curricular.units.1st.sem..grade.),
+      maxGrade = max(Curricular.units.1st.sem..grade.)
+    ) %>%
+    kable()
+
+#Calculate means
+meanGrade2 <- studentDS %>% 
+  group_by(Target) %>%
+  summarize(
+    N = n(),
+    avgGrade = mean(Curricular.units.2nd.sem..grade.)
+  )
+
+#Box plot for 2nd semester
+ggplot(
+  data = studentDS1,
+  mapping = aes(x = Target, y = Curricular.units.2nd.sem..grade.)
+  ) +
+    geom_boxplot() +
+  geom_point(
+    data = meanGrade2,
+    mapping = aes(x = Target, y = avgGrade, color = "Mean of Grade"),
+    shape = 6,
+    size = 2
+  ) +
+  scale_color_manual(values = psuPalette[2], name = "", labels = "Mean of Grade") + 
+  theme(legend.position = "bottom")
+
+studentDS %>%
+    group_by(Target) %>%
+    summarize(
+      N = n(),
+      minGrade = min(Curricular.units.2nd.sem..grade.),
+      avgGrade = mean(Curricular.units.2nd.sem..grade.),
+      medianGrade = median(Curricular.units.2nd.sem..grade.),
+      maxGrade = max(Curricular.units.2nd.sem..grade.)
+    ) %>%
+    kable()
+```
+
+**Comments:**
+
+-   Looking at the box plots for the 2 semester's there is a similar trend between the distributions of the grades of the students for each status group.
+
+-   Dropouts tended to score lower than the graduates, with the enrolled students performing between the two.
+
+-   The summary tables reflect this trend as well, where the average grade is lowest in the dropout group and highest in the graduated group.
+
+```{r}
+#Display Summaries for some of the Quantitative Variables
+summary(studentDS$Curricular.units.1st.sem..grade.)
+summary(studentDS$Curricular.units.2nd.sem..grade.)
+summary(studentDS$Curricular.units.1st.sem..enrolled.)
+summary(studentDS$Curricular.units.2nd.sem..enrolled.)
+summary(studentDS$Curricular.units.1st.sem..credited.)
+summary(studentDS$Curricular.units.2nd.sem..credited.)
+summary(studentDS$Curricular.units.1st.sem..evaluations.)
+summary(studentDS$Curricular.units.2nd.sem..evaluations.)
+summary(studentDS$Curricular.units.1st.sem..approved.)
+summary(studentDS$Curricular.units.2nd.sem..approved.)
+summary(studentDS$Age.at.enrollment)
+```
+
+```{r}
+#Distribution of Age
+ggplot(
+  data = studentDS,
+  mapping = aes(x = Age.at.enrollment)
+  ) +
+    geom_histogram(
+      color = "black",
+      fill = boastPalette[4],
+      alpha = 0.7
+    ) +
+  labs(
+    title = "Histogram of Age at Enrollment",
+    x = "Age at Enrollment",
+    y = "Frequency"
+  )
+
+```
+
+**Comments: **
+
+-  Here we see a right-skewed distribution of age at enrollment, which is expected.
+
+```{r}
+library(reshape2)
+
+# Calculate correlation matrix
+corMat <- cor(studentDS %>% dplyr::select(!Target & !sex), use = "complete.obs")
+
+# Melt the correlation matrix
+corMelted <- melt(corMat)
+
+# Plotting the heatmap
+ggplot(
+  data = corMelted,
+  mapping = aes(x = Var1, y = Var2, fill = value)
+) +
+  geom_tile() + 
+  scale_fill_gradient2(
+    low = psuPalette[1],
+    high = psuPalette[2], 
+    mid = "white", 
+    midpoint = 0, 
+    limit = c(-1, 1)
+  ) +
+  theme_minimal() +  
+  theme(
+    axis.text.x = element_text(angle = 60, hjust = 1, vjust = 1, size = 6.3),
+    axis.text.y = element_text(size = 6.5),
+    axis.title = element_blank()
+  ) +
+  labs(
+    title = "Correlation Heat Map from the Data Set"
+  )
+```
+
+**Comments:**
+
+-   Looking at the heat map, we find strong correlations present between the credits, grades, and other curricular data recorded for the 1st and 2nd semesters.
+
+-   We can also see some correlation between the parent's data, as well as correlation between certain groups along the diagonal.
+
+-   There is a relatively strong correlation between whether the student is an Internation and their nationality.
+
+-   If we separate those areas of correlation into groups We can also see some correlation between groups as well, which should be kept in mind when modeling.
+
+## Model
+
+```{r}
+library(nnet)
+library(MASS)
+```
+
+```{r}
+#Perform Backwards Selection
+baseModel <-  multinom(Target ~ 1, data = studentDS)
+fullModel <- multinom(Target ~ Marital.status + Application.mode + Application.order + 
+    Course + Daytime.evening.attendance + Previous.qualification + 
+    Nacionality + (Mother.s.qualification + Father.s.qualification + 
+    Mother.s.occupation + Father.s.occupation)^2 + Displaced + Educational.special.needs + 
+    (Debtor + Tuition.fees.up.to.date)^2 + Gender + Scholarship.holder + 
+    Age.at.enrollment + International + Curricular.units.1st.sem..credited. + 
+    (Curricular.units.1st.sem..enrolled. + Curricular.units.1st.sem..evaluations. + 
+    Curricular.units.1st.sem..approved. + Curricular.units.1st.sem..grade. + 
+    Curricular.units.1st.sem..without.evaluations.)^2 + (Curricular.units.2nd.sem..credited. + 
+    Curricular.units.2nd.sem..enrolled. + Curricular.units.2nd.sem..evaluations. + 
+    Curricular.units.2nd.sem..approved. + Curricular.units.2nd.sem..grade. + 
+    Curricular.units.2nd.sem..without.evaluations.)^2 + Unemployment.rate + 
+    Inflation.rate + GDP + International:Nacionality, data = studentDS)
+
+#stepModel <- stepAIC(fullModel, scope = list(lower = formula(baseModel), upper = formula(fullModel)), direction = "backward")
+```
+
+```{r}
+#Model using variables selected using backwards selection
+bsModel <- multinom(Target ~ Application.order + Course + Nacionality + Mother.s.qualification + 
+    Father.s.qualification + Mother.s.occupation + Father.s.occupation + 
+    Displaced + Debtor + Tuition.fees.up.to.date + Gender + Scholarship.holder + 
+    Age.at.enrollment + International + Curricular.units.1st.sem..credited. + 
+    Curricular.units.1st.sem..enrolled. + Curricular.units.1st.sem..approved. + 
+    Curricular.units.1st.sem..without.evaluations. + Curricular.units.2nd.sem..credited. + 
+    Curricular.units.2nd.sem..enrolled. + Curricular.units.2nd.sem..evaluations. + 
+    Curricular.units.2nd.sem..approved. + Curricular.units.2nd.sem..grade. + 
+    Curricular.units.2nd.sem..without.evaluations. + Unemployment.rate + 
+    Mother.s.qualification:Mother.s.occupation + Mother.s.occupation:Father.s.occupation + 
+    Curricular.units.1st.sem..enrolled.:Curricular.units.1st.sem..without.evaluations. + 
+    Curricular.units.1st.sem..approved.:Curricular.units.1st.sem..without.evaluations. + 
+    Curricular.units.2nd.sem..credited.:Curricular.units.2nd.sem..evaluations. + 
+    Curricular.units.2nd.sem..credited.:Curricular.units.2nd.sem..approved. + 
+    Curricular.units.2nd.sem..credited.:Curricular.units.2nd.sem..without.evaluations. + 
+    Curricular.units.2nd.sem..enrolled.:Curricular.units.2nd.sem..evaluations. + 
+    Curricular.units.2nd.sem..enrolled.:Curricular.units.2nd.sem..approved. + 
+    Curricular.units.2nd.sem..enrolled.:Curricular.units.2nd.sem..without.evaluations. + 
+    Curricular.units.2nd.sem..evaluations.:Curricular.units.2nd.sem..approved. + 
+    Curricular.units.2nd.sem..evaluations.:Curricular.units.2nd.sem..without.evaluations. + 
+    Curricular.units.2nd.sem..approved.:Curricular.units.2nd.sem..grade., data = studentDS)
+
+#Summary Table
+tidy(bsModel, conf.int = FALSE, exponentiate = FALSE) %>%
+  kable(digits = 3, format = "markdown")
+```
+
+**Comments:**
+
+-   The formula's for the multinomial model are as follows:
+
+**Enrolled vs Dropout:**
+
+$$\log\left(\frac{\hat{p}_{i, \text{Enrolled}}}{\hat{p}_{i, \text{Dropout}}}\right) = 0.030 - 0.116 x_{\text{Application.order}} - 0.069 x_{\text{Course}} - 0.158 x_{\text{Nacionality}} - 0.058 x_{\text{Mother.s.qualification}} + 0.001 x_{\text{Mother.s.occupation}} - 0.330 x_{\text{Displaced}} - 0.259 x_{\text{Debtor}} + 2.014 x_{\text{Tuition.fees.up.to.date}} - 0.239 x_{\text{Gender}} + 0.051 x_{\text{Scholarship.holder}} - 0.043 x_{\text{Age.at.enrollment}} + 2.354 x_{\text{International}} - 0.023 x_{\text{Curricular.units.1st.sem..credited.}} - 0.023 x_{\text{Curricular.units.1st.sem..enrolled.}} + 0.080 x_{\text{Curricular.units.1st.sem..approved.}} - 0.373 x_{\text{Curricular.units.2nd.sem..credited.}} - 0.327 x_{\text{Curricular.units.2nd.sem..enrolled.}} + 0.209 x_{\text{Curricular.units.2nd.sem..evaluations.}} + 0.964 x_{\text{Curricular.units.2nd.sem..approved.}} + 0.079 x_{\text{Curricular.units.2nd.sem..grade.}} - 1.079 x_{\text{Curricular.units.2nd.sem..without.evaluations.}} - 0.085 x_{\text{Unemployment.rate}} + 0.004 x_{\text{Mother.s.qualification}} x_{\text{Mother.s.occupation}} + 0.001 x_{\text{Mother.s.occupation}} x_{\text{Father.s.occupation}} - 0.018 x_{\text{Curricular.units.1st.sem..enrolled.}} x_{\text{Curricular.units.1st.sem..without.evaluations.}} - 0.059 x_{\text{Curricular.units.1st.sem..approved.}} x_{\text{Curricular.units.1st.sem..without.evaluations.}} + 0.032 x_{\text{Curricular.units.2nd.sem..credited.}} x_{\text{Curricular.units.2nd.sem..evaluations.}} + 0.228 x_{\text{Curricular.units.2nd.sem..enrolled.}} x_{\text{Curricular.units.2nd.sem..without.evaluations.}} - 0.006 x_{\text{Curricular.units.2nd.sem..evaluations.}} x_{\text{Curricular.units.2nd.sem..approved.}} - 0.026 x_{\text{Curricular.units.2nd.sem..evaluations.}} x_{\text{Curricular.units.2nd.sem..without.evaluations.}} - 0.048 x_{\text{Curricular.units.2nd.sem..approved.}} x_{\text{Curricular.units.2nd.sem..grade.}} + \epsilon$$
+
+**Graduate vs Dropout:**
+
+$$\log\left(\frac{\hat{p}_{i, \text{Graduate}}}{\hat{p}_{i, \text{Dropout}}}\right) = 0.330 - 0.088 x_{\text{Application.order}} - 0.120 x_{\text{Course}} - 0.257 x_{\text{Nacionality}} - 0.032 x_{\text{Mother.s.qualification}} - 0.008 x_{\text{Mother.s.occupation}} - 0.305 x_{\text{Displaced}} - 1.019 x_{\text{Debtor}} + 3.139 x_{\text{Tuition.fees.up.to.date}} - 0.492 x_{\text{Gender}} + 0.730 x_{\text{Scholarship.holder}} - 0.047 x_{\text{Age.at.enrollment}} + 3.579 x_{\text{International}} - 0.241 x_{\text{Curricular.units.1st.sem..credited.}} - 0.286 x_{\text{Curricular.units.1st.sem..enrolled.}} + 0.755 x_{\text{Curricular.units.1st.sem..approved.}} - 0.677 x_{\text{Curricular.units.1st.sem..without.evaluations.}} - 0.180 x_{\text{Curricular.units.2nd.sem..credited.}} - 1.222 x_{\text{Curricular.units.2nd.sem..enrolled.}} - 0.239 x_{\text{Curricular.units.2nd.sem..evaluations.}} + 1.772 x_{\text{Curricular.units.2nd.sem..approved.}} + 0.044 x_{\text{Curricular.units.2nd.sem..grade.}} + 0.266 x_{\text{Curricular.units.2nd.sem..without.evaluations.}} - 0.094 x_{\text{Unemployment.rate}} + 0.003 x_{\text{Mother.s.qualification}} x_{\text{Mother.s.occupation}} + 0.003 x_{\text{Mother.s.occupation}} x_{\text{Father.s.occupation}} + 0.244 x_{\text{Curricular.units.1st.sem..enrolled.}} x_{\text{Curricular.units.1st.sem..without.evaluations.}} - 0.242 x_{\text{Curricular.units.1st.sem..approved.}} x_{\text{Curricular.units.1st.sem..without.evaluations.}} + 0.061 x_{\text{Curricular.units.2nd.sem..enrolled.}} x_{\text{Curricular.units.2nd.sem..evaluations.}} - 0.039 x_{\text{Curricular.units.2nd.sem..evaluations.}} x_{\text{Curricular.units.2nd.sem..approved.}} + 0.061 x_{\text{Curricular.units.2nd.sem..evaluations.}} x_{\text{Curricular.units.2nd.sem..without.evaluations.}} + 0.002 x_{\text{Curricular.units.2nd.sem..approved.}} x_{\text{Curricular.units.2nd.sem..grade.}} + \epsilon$$
+
+**Comments:**
+
+-   Looking at the summary table the most effective predictor present in the model is `International` with a p-values of `0`, as well as a coefficient with magnitude of `2.354` and `3.579` when considering Enrolled vs. Dropout and Graduate and Graduate vs. Dropout respectively.
+
+-   *Interpretations:* The odds that a student is enrolled vs dropped out, after controlling for the other variables change by a factor of `10.5276` as we move from non-international to international status. Likewise, the odds that a student is graduated vs dropped out, after controlling for the other variables change by a factor of `35.83769` as we move from non-international to international status.
+
+```{r}
+#Create Conf Matrix
+predClass <- predict(bsModel, newData = studentDS, type = "class")
+
+table(predClass, studentDS$Target)
+```
+
+```{r}
+#Calculate Total Accuracy
+(1090 + 304 + 2050) / nrow(studentDS)
+```
+
+**Comments:**
+
+-   Looking at the confusion matrix, we obtain an overall accuracy of 77.8481%
+
+=======
+---
+title: "Final Project"
+author: "Sean, Allan, Jared"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+# Front Matter
+
+```{r}
+rm(list = ls())
+library(tidyverse)
+library(boastUtils)
+library(ggcorrplot)
+library(kableExtra)
+library(broom)
+library(nnet)
+library(MASS)
+
+studentDS <- read.csv("C:/Users/Sean/Stat400/STAT400/StudentSucessDataset.csv")
+
+studentDS1 <- studentDS %>%
+  mutate(
+    Marital.status = case_when(
+      Marital.status == 1 ~ "Single",
+      Marital.status == 2 ~ "Married",
+      Marital.status == 3 ~ "Widower",
+      Marital.status == 4 ~ "Divorced",
+      Marital.status == 5 ~ "Facto union",
+      Marital.status == 6 ~ "Legally separated",
+      TRUE ~ "Other"  # Adding an 'Other' category for any unexpected values
+    ),
+    Nationality = Nacionality,
+    Nationality = case_when(
+      Nationality == 1 ~ "Portuguese",
+      Nationality == 2 ~ "German",
+      Nationality == 3 ~ "Spanish",
+      Nationality == 4 ~ "Italian",
+      Nationality == 5 ~ "Dutch",
+      Nationality == 6 ~ "English",
+      Nationality == 7 ~ "Lithuanian",
+      Nationality == 8 ~ "Angolan",
+      Nationality == 9 ~ "Cape Verdean",
+      Nationality == 10 ~ "Guinean",
+      Nationality == 11 ~ "Mozambican",
+      Nationality == 12 ~ "Santomean",
+      Nationality == 13 ~ "Turkish",
+      Nationality == 14 ~ "Brazilian",
+      Nationality == 15 ~ "Romanian",
+      Nationality == 16 ~ "Moldova (Republic of)",
+      Nationality == 17 ~ "Mexican",
+      Nationality == 18 ~ "Ukrainian",
+      Nationality == 19 ~ "Russian",
+      Nationality == 20 ~ "Cuban",
+      Nationality == 21 ~ "Colombian",
+      TRUE ~ "Other"
+    ),
+    Application.mode = case_when(
+      Application.mode == 1 ~ "1st phase—general contingent",
+      Application.mode == 2 ~ "Ordinance No. 612/93",
+      Application.mode == 3 ~ "1st phase—special contingent (Azores Island)",
+      Application.mode == 4 ~ "Holders of other higher courses",
+      Application.mode == 5 ~ "Ordinance No. 854-B/99",
+      Application.mode == 6 ~ "International student (bachelor)",
+      Application.mode == 7 ~ "1st phase—special contingent (Madeira Island)",
+      Application.mode == 8 ~ "2nd phase—general contingent",
+      Application.mode == 9 ~ "3rd phase—general contingent",
+      Application.mode == 10 ~ "Ordinance No. 533-A/99, item b2) (Different Plan)",
+      Application.mode == 11 ~ "Ordinance No. 533-A/99, item b3 (Other Institution)",
+      Application.mode == 12 ~ "Over 23 years old",
+      Application.mode == 13 ~ "Transfer",
+      Application.mode == 14 ~ "Change in course",
+      Application.mode == 15 ~ "Technological specialization diploma holders",
+      Application.mode == 16 ~ "Change in institution/course",
+      Application.mode == 17 ~ "Short cycle diploma holders",
+      Application.mode == 18 ~ "Change in institution/course (International)",
+      TRUE ~ "Other"
+    ),
+    Course = case_when(
+      Course == 1 ~ "Biofuel Production Technologies",
+      Course == 2 ~ "Animation and Multimedia Design",
+      Course == 3 ~ "Social Service (evening attendance)",
+      Course == 4 ~ "Agronomy",
+      Course == 5 ~ "Communication Design",
+      Course == 6 ~ "Veterinary Nursing",
+      Course == 7 ~ "Informatics Engineering",
+      Course == 8 ~ "Equiniculture",
+      Course == 9 ~ "Management",
+      Course == 10 ~ "Social Service",
+      Course == 11 ~ "Tourism",
+      Course == 12 ~ "Nursing",
+      Course == 13 ~ "Oral Hygiene",
+      Course == 14 ~ "Advertising and Marketing Management",
+      Course == 15 ~ "Journalism and Communication",
+      Course == 16 ~ "Basic Education",
+      Course == 17 ~ "Management (evening attendance)",
+      TRUE ~ "Other"
+    ),
+    Previous.qualification = case_when(
+      Previous.qualification == 1 ~ "Secondary education",
+      Previous.qualification == 2 ~ "Higher education—bachelor’s degree",
+      Previous.qualification == 3 ~ "Higher education—degree",
+      Previous.qualification == 4 ~ "Higher education—master’s degree",
+      Previous.qualification == 5 ~ "Higher education—doctorate",
+      Previous.qualification == 6 ~ "Frequency of higher education",
+      Previous.qualification == 7 ~ "12th year of schooling—not completed",
+      Previous.qualification == 8 ~ "11th year of schooling—not completed",
+      Previous.qualification == 9 ~ "Other—11th year of schooling",
+      Previous.qualification == 10 ~ "10th year of schooling",
+      Previous.qualification == 11 ~ "10th year of schooling—not completed",
+      Previous.qualification == 12 ~ "Basic education 3rd cycle (9th/10th/11th year) or equivalent",
+      Previous.qualification == 13 ~ "Basic education 2nd cycle (6th/7th/8th year) or equivalent",
+      Previous.qualification == 14 ~ "Technological specialization course",
+      Previous.qualification == 15 ~ "Higher education—degree (1st cycle)",
+      Previous.qualification == 16 ~ "Professional higher technical course",
+      Previous.qualification == 17 ~ "Higher education—master’s degree (2nd cycle)",
+      TRUE ~ "Other"
+    ),
+     Mother.s.qualification = case_when(
+      Mother.s.qualification == 1 ~ "Secondary Education—12th Year of Schooling or Equivalent",
+      Mother.s.qualification == 2 ~ "Higher Education—bachelor’s degree",
+      Mother.s.qualification == 3 ~ "Higher Education—degree",
+      Mother.s.qualification == 4 ~ "Higher Education—master’s degree",
+      Mother.s.qualification == 5 ~ "Higher Education—doctorate",
+      Mother.s.qualification == 6 ~ "Frequency of Higher Education",
+      Mother.s.qualification == 7 ~ "12th Year of Schooling—not completed",
+      Mother.s.qualification == 8 ~ "11th Year of Schooling—not completed",
+      Mother.s.qualification == 9 ~ "7th Year (Old)",
+      Mother.s.qualification == 10 ~ "Other—11th Year of Schooling",
+      Mother.s.qualification == 11 ~ "2nd year complementary high school course",
+      Mother.s.qualification == 12 ~ "10th Year of Schooling",
+      Mother.s.qualification == 13 ~ "General commerce course",
+      Mother.s.qualification == 14 ~ "Basic Education 3rd Cycle (9th/10th/11th Year) or Equivalent",
+      Mother.s.qualification == 15 ~ "Complementary High School Course",
+      Mother.s.qualification == 16 ~ "Technical-professional course",
+      Mother.s.qualification == 17 ~ "Complementary High School Course—not concluded",
+      Mother.s.qualification == 18 ~ "7th year of schooling",
+      Mother.s.qualification == 19 ~ "2nd cycle of the general high school course",
+      Mother.s.qualification == 20 ~ "9th Year of Schooling—not completed",
+      Mother.s.qualification == 21 ~ "8th year of schooling",
+      Mother.s.qualification == 22 ~ "General Course of Administration and Commerce",
+      Mother.s.qualification == 23 ~ "Supplementary Accounting and Administration",
+      Mother.s.qualification == 24 ~ "Unknown",
+      Mother.s.qualification == 25 ~ "Cannot read or write",
+      Mother.s.qualification == 26 ~ "Can read without having a 4th year of schooling",
+      Mother.s.qualification == 27 ~ "Basic education 1st cycle (4th/5th year) or equivalent",
+      Mother.s.qualification == 28 ~ "Basic Education 2nd Cycle (6th/7th/8th Year) or equivalent",
+      Mother.s.qualification == 29 ~ "Technological specialization course",
+      Mother.s.qualification == 30 ~ "Higher education—degree (1st cycle)",
+      Mother.s.qualification == 31 ~ "Specialized higher studies course",
+      Mother.s.qualification == 32 ~ "Professional higher technical course",
+      Mother.s.qualification == 33 ~ "Higher Education—master’s degree (2nd cycle)",
+      Mother.s.qualification == 34 ~ "Higher Education—doctorate (3rd cycle)",
+      TRUE ~ "Other"),
+     Father.s.qualification = case_when(
+      Father.s.qualification == 1 ~ "Secondary Education—12th Year of Schooling or Equivalent",
+      Father.s.qualification == 2 ~ "Higher Education—bachelor’s degree",
+      Father.s.qualification == 3 ~ "Higher Education—degree",
+      Father.s.qualification == 4 ~ "Higher Education—master’s degree",
+      Father.s.qualification == 5 ~ "Higher Education—doctorate",
+      Father.s.qualification == 6 ~ "Frequency of Higher Education",
+      Father.s.qualification == 7 ~ "12th Year of Schooling—not completed",
+      Father.s.qualification == 8 ~ "11th Year of Schooling—not completed",
+      Father.s.qualification == 9 ~ "7th Year (Old)",
+      Father.s.qualification == 10 ~ "Other—11th Year of Schooling",
+      Father.s.qualification == 11 ~ "2nd year complementary high school course",
+      Father.s.qualification == 12 ~ "10th Year of Schooling",
+      Father.s.qualification == 13 ~ "General commerce course",
+      Father.s.qualification == 14 ~ "Basic Education 3rd Cycle (9th/10th/11th Year) or Equivalent",
+      Father.s.qualification == 15 ~ "Complementary High School Course",
+      Father.s.qualification == 16 ~ "Technical-professional course",
+      Father.s.qualification == 17 ~ "Complementary High School Course—not concluded",
+      Father.s.qualification == 18 ~ "7th year of schooling",
+      Father.s.qualification == 19 ~ "2nd cycle of the general high school course",
+      Father.s.qualification == 20 ~ "9th Year of Schooling—not completed",
+      Father.s.qualification == 21 ~ "8th year of schooling",
+      Father.s.qualification == 22 ~ "General Course of Administration and Commerce",
+      Father.s.qualification == 23 ~ "Supplementary Accounting and Administration",
+      Father.s.qualification == 24 ~ "Unknown",
+      Father.s.qualification == 25 ~ "Cannot read or write",
+      Father.s.qualification == 26 ~ "Can read without having a 4th year of schooling",
+      Father.s.qualification == 27 ~ "Basic education 1st cycle (4th/5th year) or equivalent",
+      Father.s.qualification == 28 ~ "Basic Education 2nd Cycle (6th/7th/8th Year) or equivalent",
+      Father.s.qualification == 29 ~ "Technological specialization course",
+      Father.s.qualification == 30 ~ "Higher education—degree (1st cycle)",
+      Father.s.qualification == 31 ~ "Specialized higher studies course",
+      Father.s.qualification == 32 ~ "Professional higher technical course",
+      Father.s.qualification == 33 ~ "Higher Education—master’s degree (2nd cycle)",
+      Father.s.qualification == 34 ~ "Higher Education—doctorate (3rd cycle)",
+      TRUE ~ "Other"),
+     Mother.s.occupation = case_when(
+      Mother.s.occupation == 1 ~ "Student",
+      Mother.s.occupation == 2 ~ "Representatives of the Legislative Power and Executive Bodies, Directors, and Executive Managers",
+      Mother.s.occupation == 3 ~ "Specialists in Intellectual and Scientific Activities",
+      Mother.s.occupation == 4 ~ "Intermediate Level Technicians and Professions",
+      Mother.s.occupation == 5 ~ "Administrative staff",
+      Mother.s.occupation == 6 ~ "Personal Services, Security and Safety Workers, and Sellers",
+      Mother.s.occupation == 7 ~ "Farmers and Skilled Workers in Agriculture, Fisheries, and Forestry",
+      Mother.s.occupation == 8 ~ "Skilled Workers in Industry, Construction, and Craftsmen",
+      Mother.s.occupation == 9 ~ "Installation and Machine Operators and Assembly Workers",
+      Mother.s.occupation == 10 ~ "Unskilled Workers",
+      Mother.s.occupation == 11 ~ "Armed Forces Professions",
+      Mother.s.occupation == 12 ~ "Other Situation",
+      Mother.s.occupation == 13 ~ "",  # blank for 13 as specified
+      Mother.s.occupation == 14 ~ "Armed Forces Officers",
+      Mother.s.occupation == 15 ~ "Armed Forces Sergeants",
+      Mother.s.occupation == 16 ~ "Other Armed Forces personnel",
+      Mother.s.occupation == 17 ~ "Directors of administrative and commercial services",
+      Mother.s.occupation == 18 ~ "Hotel, catering, trade, and other services directors",
+      Mother.s.occupation == 19 ~ "Specialists in the physical sciences, mathematics, engineering, and related techniques",
+      Mother.s.occupation == 20 ~ "Health professionals",
+      Mother.s.occupation == 21 ~ "Teachers",
+      Mother.s.occupation == 22 ~ "Specialists in finance, accounting, administrative organization, and public and commercial relations",
+      Mother.s.occupation == 23 ~ "Intermediate level science and engineering technicians and professions",
+      Mother.s.occupation == 24 ~ "Technicians and professionals of intermediate level of health",
+      Mother.s.occupation == 25 ~ "Intermediate level technicians from legal, social, sports, cultural, and similar services",
+      Mother.s.occupation == 26 ~ "Information and communication technology technicians",
+      Mother.s.occupation == 27 ~ "Office workers, secretaries in general, and data processing operators",
+      Mother.s.occupation == 28 ~ "Data, accounting, statistical, financial services, and registry-related operators",
+      Mother.s.occupation == 29 ~ "Other administrative support staff",
+      Mother.s.occupation == 30 ~ "Personal service workers",
+      Mother.s.occupation == 31 ~ "Sellers",
+      Mother.s.occupation == 32 ~ "Personal care workers and the like",
+      Mother.s.occupation == 33 ~ "Protection and security services personnel",
+      Mother.s.occupation == 34 ~ "Market-oriented farmers and skilled agricultural and animal production workers",
+      Mother.s.occupation == 35 ~ "Farmers, livestock keepers, fishermen, hunters and gatherers, and subsistence",
+      Mother.s.occupation == 36 ~ "Skilled construction workers and the like, except electricians",
+      Mother.s.occupation == 37 ~ "Skilled workers in metallurgy, metalworking, and similar",
+      Mother.s.occupation == 38 ~ "Skilled workers in electricity and electronics",
+      Mother.s.occupation == 39 ~ "Workers in food processing, woodworking, clothing and other industries and crafts",
+      Mother.s.occupation == 40 ~ "Fixed plant and machine operators",
+      Mother.s.occupation == 41 ~ "Assembly workers",
+      Mother.s.occupation == 42 ~ "Vehicle drivers and mobile equipment operators",
+      Mother.s.occupation == 43 ~ "Unskilled workers in agriculture, animal production, and fisheries and forestry",
+      Mother.s.occupation == 44 ~ "Unskilled workers in extractive industry, construction, manufacturing, and transport",
+      Mother.s.occupation == 45 ~ "Meal preparation assistants",
+      Mother.s.occupation == 46 ~ "Street vendors (except food) and street service providers",
+      TRUE ~ "Other"
+    ),
+    Father.s.occupation = case_when(
+      Father.s.occupation == 1 ~ "Student",
+      Father.s.occupation == 2 ~ "Representatives of the Legislative Power and Executive Bodies, Directors, and Executive Managers",
+      Father.s.occupation == 3 ~ "Specialists in Intellectual and Scientific Activities",
+      Father.s.occupation == 4 ~ "Intermediate Level Technicians and Professions",
+      Father.s.occupation == 5 ~ "Administrative staff",
+      Father.s.occupation == 6 ~ "Personal Services, Security and Safety Workers, and Sellers",
+      Father.s.occupation == 7 ~ "Farmers and Skilled Workers in Agriculture, Fisheries, and Forestry",
+      Father.s.occupation == 8 ~ "Skilled Workers in Industry, Construction, and Craftsmen",
+      Father.s.occupation == 9 ~ "Installation and Machine Operators and Assembly Workers",
+      Father.s.occupation == 10 ~ "Unskilled Workers",
+      Father.s.occupation == 11 ~ "Armed Forces Professions",
+      Father.s.occupation == 12 ~ "Other Situation",
+      Father.s.occupation == 13 ~ "",  # blank for 13 as specified
+      Father.s.occupation == 14 ~ "Armed Forces Officers",
+      Father.s.occupation == 15 ~ "Armed Forces Sergeants",
+      Father.s.occupation == 16 ~ "Other Armed Forces personnel",
+      Father.s.occupation == 17 ~ "Directors of administrative and commercial services",
+      Father.s.occupation == 18 ~ "Hotel, catering, trade, and other services directors",
+      Father.s.occupation == 19 ~ "Specialists in the physical sciences, mathematics, engineering, and related techniques",
+      Father.s.occupation == 20 ~ "Health professionals",
+      Father.s.occupation == 21 ~ "Teachers",
+      Father.s.occupation == 22 ~ "Specialists in finance, accounting, administrative organization, and public and commercial relations",
+      Father.s.occupation == 23 ~ "Intermediate level science and engineering technicians and professions",
+      Father.s.occupation == 24 ~ "Technicians and professionals of intermediate level of health",
+      Father.s.occupation == 25 ~ "Intermediate level technicians from legal, social, sports, cultural, and similar services",
+      Father.s.occupation == 26 ~ "Information and communication technology technicians",
+      Father.s.occupation == 27 ~ "Office workers, secretaries in general, and data processing operators",
+      Father.s.occupation == 28 ~ "Data, accounting, statistical, financial services, and registry-related operators",
+      Father.s.occupation == 29 ~ "Other administrative support staff",
+      Father.s.occupation == 30 ~ "Personal service workers",
+      Father.s.occupation == 31 ~ "Sellers",
+      Father.s.occupation == 32 ~ "Personal care workers and the like",
+      Father.s.occupation == 33 ~ "Protection and security services personnel",
+      Father.s.occupation == 34 ~ "Market-oriented farmers and skilled agricultural and animal production workers",
+      Father.s.occupation == 35 ~ "Farmers, livestock keepers, fishermen, hunters and gatherers, and subsistence",
+      Father.s.occupation == 36 ~ "Skilled construction workers and the like, except electricians",
+      Father.s.occupation == 37 ~ "Skilled workers in metallurgy, metalworking, and similar",
+      Father.s.occupation == 38 ~ "Skilled workers in electricity and electronics",
+      Father.s.occupation == 39 ~ "Workers in food processing, woodworking, clothing and other industries and crafts",
+      Father.s.occupation == 40 ~ "Fixed plant and machine operators",
+      Father.s.occupation == 41 ~ "Assembly workers",
+      Father.s.occupation == 42 ~ "Vehicle drivers and mobile equipment operators",
+      Father.s.occupation == 43 ~ "Unskilled workers in agriculture, animal production, and fisheries and forestry",
+      Father.s.occupation == 44 ~ "Unskilled workers in extractive industry, construction, manufacturing, and transport",
+      Father.s.occupation == 45 ~ "Meal preparation assistants",
+      Father.s.occupation == 46 ~ "Street vendors (except food) and street service providers",
+      TRUE ~ "Other"
+    )
+  ) %>% 
+  dplyr::select( !Nacionality)
+
+```
+
+### Introduction (Motivation)
+
+
+
+
+
+
+# GLM Section
+
+**Research Questions: **
+
+- What variables are best when predicting the student status `Target`?
+
+- When creating a model with said variables, which are most effective when predicting the student status?
+
+
+## Explanatory Dasta Analysis (EDA)
+
+```{r}
+#See couple rows of data
+glimpse(studentDS1, 4)
+```
+
+
+```{r}
+#View Proportion of Student Status
+ggplot(
+  data = studentDS,
+  mapping = aes(x = Target, fill = Target)
+) +
+  geom_bar(color = "black") +
+  scale_fill_manual(values = c(psuPalette[2], boastPalette[3], boastPalette[1])) +
+  theme(
+    legend.position = "none"
+  ) +
+  labs(
+    title = "Bar Chart of Student Status",
+   x = "Student Status",
+   y = "Frequency"
+  )
+```
+
+**Comments: **
+
+- Looking at the status of the students, here are three categories or levels: "Dropout", "Enrolled", and "Graduate".
+
+- If we are interested in creating a predictive model we can create a multinomial model predicting for this status.
+
+- Then, we can find what variables are best in predicting this status
+
+```{r}
+#Create Sex Variable
+studentDS <- studentDS %>%
+  mutate(sex = ifelse(Gender == 1, "Male", "Female"))
+#View Proportion of Student Status
+ggplot(
+  data = studentDS,
+  mapping = aes(x = Target, fill = Target)
+) +
+  geom_bar(color = "black") + 
+  facet_wrap(sex ~ .) +
+  scale_fill_manual(values = c(psuPalette[2], boastPalette[3], boastPalette[1])) +
+    theme(
+    legend.position = "none"
+  ) +
+  labs(
+    title = "Bar Chart of Student Status by Gender",
+   x = "Student Status",
+   y = "Frequency"
+  )
+
+#View counts and frequency by male and female
+studentDS %>%
+  group_by(sex) %>%
+  summarize(
+    N = n(),
+    propGrad = NROW(which(Target == "Graduate"))/N,
+    propEnroll = NROW(which(Target == "Enrolled"))/N,
+    propDrop =  NROW(which(Target == "Dropout"))/N
+    ) %>%
+  kable()
+```
+
+**Comments: **
+
+- Looking at the plots and summary data, we find there is a higher proportion of female graduates than male graduates when comparing the two genders. 
+
+- Similarly we find that there are a higher proportion of male dropouts than female dropouts, even though the number of dropouts appear to be similar.
+
+- This indicates that gender may be a good indicator for the student status or success. 
+
+```{r}
+#View Proportion of Student Status by time of attendance
+ggplot(
+  data = studentDS1,
+  mapping = aes(x = Target, fill = Target)
+) +
+  geom_bar(color = "black") +
+  scale_fill_manual(values = c(psuPalette[2], boastPalette[3], boastPalette[1])) +
+  theme(
+    legend.position = "none"
+  ) +
+  labs(
+    title = "Bar Chart of Student Status by Time of Attendance",
+   x = "Student Status",
+   y = "Frequency"
+  ) +
+  facet_wrap(as.factor(Daytime.evening.attendance)~.)
+  
+  studentDS %>%
+    group_by(as.factor(Daytime.evening.attendance)) %>%
+    summarize(
+      N = n(),
+      propGrad = NROW(which(Target == "Graduate"))/N,
+      propEnroll = NROW(which(Target == "Enrolled"))/N,
+      propDrop =  NROW(which(Target == "Dropout"))/N
+    ) %>%
+    kable()
+```
+
+`NOTE:` `1` indicates daytime attendance and `0` indicates night time attendance.
+
+**Comments: **
+
+- Here, we see we have a lot more daytime attendance. However, there is a slightly higher proportion of graduates and enrolled and a lesser proportion of dropouts for the daytime group. 
+
+```{r}
+#Display Summaries for some of the Quantitative Variables
+summary(studentDS$Curricular.units.1st.sem..grade.)
+summary(studentDS$Curricular.units.2nd.sem..grade.)
+summary(studentDS$Curricular.units.1st.sem..enrolled.)
+summary(studentDS$Curricular.units.2nd.sem..enrolled.)
+summary(studentDS$Curricular.units.1st.sem..credited.)
+summary(studentDS$Curricular.units.2nd.sem..credited.)
+summary(studentDS$Curricular.units.1st.sem..evaluations.)
+summary(studentDS$Curricular.units.2nd.sem..evaluations.)
+summary(studentDS$Curricular.units.1st.sem..approved.)
+summary(studentDS$Curricular.units.2nd.sem..approved.)
+summary(studentDS$Age.at.enrollment)
+```
+
+```{r}
+#Distribution of Age
+ggplot(
+  data = studentDS,
+  mapping = aes(x = Age.at.enrollment)
+  ) +
+    geom_histogram(
+      color = "black",
+      fill = boastPalette[4],
+      alpha = 0.7
+    ) +
+  labs(
+    title = "Histogram of Age at Enrollment",
+    x = "Age at Enrollment",
+    y = "Frequency"
+  )
+
+```
+
+**Comments: **
+
+-  Here we see a right-skewed distribution of age at enrollment, which is expected.
+
+```{r}
+#Box plot for 1st semester
+ggplot(
+  data = studentDS1,
+  mapping = aes(x = Target, y = Curricular.units.1st.sem..grade.)
+  ) +
+    geom_boxplot()
+
+studentDS %>%
+    group_by(Target) %>%
+    summarize(
+      N = n(),
+      minGrade = min(Curricular.units.1st.sem..grade.),
+      avgGrade = mean(Curricular.units.1st.sem..grade.),
+      medianGrade = median(Curricular.units.1st.sem..grade.),
+      maxGrade = max(Curricular.units.1st.sem..grade.)
+    ) %>%
+    kable()
+
+#Box plot for 2nd semester
+ggplot(
+  data = studentDS1,
+  mapping = aes(x = Target, y = Curricular.units.2nd.sem..grade.)
+  ) +
+    geom_boxplot()
+
+studentDS %>%
+    group_by(Target) %>%
+    summarize(
+      N = n(),
+      minGrade = min(Curricular.units.2nd.sem..grade.),
+      avgGrade = mean(Curricular.units.2nd.sem..grade.),
+      medianGrade = median(Curricular.units.2nd.sem..grade.),
+      maxGrade = max(Curricular.units.2nd.sem..grade.)
+    ) %>%
+    kable()
+```
+
+
+**Comments: **
+
+- Looking at the box plots for the 2 semester's there is a similar trend between the distributions of the grades of the students for each status group.
+
+- Dropouts tended to score lower than the graduates, with the enrolled students performing between the two.
+
+- The summary tables reflect this trend as well, where the average grade is lowest in the dropout group and highest in the graduated group.
+
+```{r}
+library(reshape2)
+
+# Calculate correlation matrix
+corMat <- cor(studentDS %>% dplyr::select(!Target & !sex), use = "complete.obs")
+
+# Melt the correlation matrix
+corMelted <- melt(corMat)
+
+# Plotting the heatmap
+ggplot(
+  data = corMelted,
+  mapping = aes(x = Var1, y = Var2, fill = value)
+) +
+  geom_tile() + 
+  scale_fill_gradient2(
+    low = psuPalette[1],
+    high = psuPalette[2], 
+    mid = "white", 
+    midpoint = 0, 
+    limit = c(-1, 1)
+  ) +
+  theme_minimal() +  
+  theme(
+    axis.text.x = element_text(angle = 60, hjust = 1, vjust = 1, size = 6.3),
+    axis.text.y = element_text(size = 6.5),
+    axis.title = element_blank()
+  ) +
+  labs(
+    title = "Correlation Heat Map from the Data Set"
+  )
+```
+
+**Comments: **
+
+- Looking at the heat map, we find strong correlations present between the credits, grades, and other curricular data recorded for the 1st and 2nd semesters. 
+
+- We can also see some correlation between the parent's data, as well as correlation between certain groups along the diagonal. 
+
+- There is a relatively strong correlation between whether the student is an Internation and their nationality.
+
+- If we separate those areas of correlation into groups We can also see some correlation between groups as well, which should be kept in mind when modeling.
+
+
+## Model
+
+```{r}
+#Perform Backwards Selection
+baseModel <-  multinom(Target ~ 1, data = studentDS)
+fullModel <- multinom(Target ~ Marital.status + Application.mode + Application.order + 
+    Course + Daytime.evening.attendance + Previous.qualification + 
+    Nacionality + (Mother.s.qualification + Father.s.qualification + 
+    Mother.s.occupation + Father.s.occupation)^2 + Displaced + Educational.special.needs + 
+    (Debtor + Tuition.fees.up.to.date)^2 + Gender + Scholarship.holder + 
+    Age.at.enrollment + International + Curricular.units.1st.sem..credited. + 
+    (Curricular.units.1st.sem..enrolled. + Curricular.units.1st.sem..evaluations. + 
+    Curricular.units.1st.sem..approved. + Curricular.units.1st.sem..grade. + 
+    Curricular.units.1st.sem..without.evaluations.)^2 + (Curricular.units.2nd.sem..credited. + 
+    Curricular.units.2nd.sem..enrolled. + Curricular.units.2nd.sem..evaluations. + 
+    Curricular.units.2nd.sem..approved. + Curricular.units.2nd.sem..grade. + 
+    Curricular.units.2nd.sem..without.evaluations.)^2 + Unemployment.rate + 
+    Inflation.rate + GDP + International:Nacionality, data = studentDS)
+
+#stepModel <- stepAIC(fullModel, scope = list(lower = formula(baseModel), upper = formula(fullModel)), direction = "backward")
+```
+
+
+```{r}
+#Model using variables selected using backwards selection
+bsModel <- multinom(Target ~ Application.order + Course + Nacionality + Mother.s.qualification + 
+    Father.s.qualification + Mother.s.occupation + Father.s.occupation + 
+    Displaced + Debtor + Tuition.fees.up.to.date + Gender + Scholarship.holder + 
+    Age.at.enrollment + International + Curricular.units.1st.sem..credited. + 
+    Curricular.units.1st.sem..enrolled. + Curricular.units.1st.sem..approved. + 
+    Curricular.units.1st.sem..without.evaluations. + Curricular.units.2nd.sem..credited. + 
+    Curricular.units.2nd.sem..enrolled. + Curricular.units.2nd.sem..evaluations. + 
+    Curricular.units.2nd.sem..approved. + Curricular.units.2nd.sem..grade. + 
+    Curricular.units.2nd.sem..without.evaluations. + Unemployment.rate + 
+    Mother.s.qualification:Mother.s.occupation + Mother.s.occupation:Father.s.occupation + 
+    Curricular.units.1st.sem..enrolled.:Curricular.units.1st.sem..without.evaluations. + 
+    Curricular.units.1st.sem..approved.:Curricular.units.1st.sem..without.evaluations. + 
+    Curricular.units.2nd.sem..credited.:Curricular.units.2nd.sem..evaluations. + 
+    Curricular.units.2nd.sem..credited.:Curricular.units.2nd.sem..approved. + 
+    Curricular.units.2nd.sem..credited.:Curricular.units.2nd.sem..without.evaluations. + 
+    Curricular.units.2nd.sem..enrolled.:Curricular.units.2nd.sem..evaluations. + 
+    Curricular.units.2nd.sem..enrolled.:Curricular.units.2nd.sem..approved. + 
+    Curricular.units.2nd.sem..enrolled.:Curricular.units.2nd.sem..without.evaluations. + 
+    Curricular.units.2nd.sem..evaluations.:Curricular.units.2nd.sem..approved. + 
+    Curricular.units.2nd.sem..evaluations.:Curricular.units.2nd.sem..without.evaluations. + 
+    Curricular.units.2nd.sem..approved.:Curricular.units.2nd.sem..grade., data = studentDS)
+
+#Summary Table
+tidy(bsModel, conf.int = FALSE, exponentiate = FALSE) %>%
+  kable(digits = 3, format = "markdown")
+```
+
+
+**Comments: ** 
+
+- The formula's for the multinomial model are as follows: 
+
+**Enrolled vs Dropout: **
+
+$$\log\left(\frac{\hat{p}_{i, \text{Enrolled}}}{\hat{p}_{i, \text{Dropout}}}\right) = 0.030 - 0.116 x_{\text{Application.order}} - 0.069 x_{\text{Course}} - 0.158 x_{\text{Nacionality}} - 0.058 x_{\text{Mother.s.qualification}} + 0.001 x_{\text{Mother.s.occupation}} - 0.330 x_{\text{Displaced}} - 0.259 x_{\text{Debtor}} + 2.014 x_{\text{Tuition.fees.up.to.date}} - 0.239 x_{\text{Gender}} + 0.051 x_{\text{Scholarship.holder}} - 0.043 x_{\text{Age.at.enrollment}} + 2.354 x_{\text{International}} - 0.023 x_{\text{Curricular.units.1st.sem..credited.}} - 0.023 x_{\text{Curricular.units.1st.sem..enrolled.}} + 0.080 x_{\text{Curricular.units.1st.sem..approved.}} - 0.373 x_{\text{Curricular.units.2nd.sem..credited.}} - 0.327 x_{\text{Curricular.units.2nd.sem..enrolled.}} + 0.209 x_{\text{Curricular.units.2nd.sem..evaluations.}} + 0.964 x_{\text{Curricular.units.2nd.sem..approved.}} + 0.079 x_{\text{Curricular.units.2nd.sem..grade.}} - 1.079 x_{\text{Curricular.units.2nd.sem..without.evaluations.}} - 0.085 x_{\text{Unemployment.rate}} + 0.004 x_{\text{Mother.s.qualification}} x_{\text{Mother.s.occupation}} + 0.001 x_{\text{Mother.s.occupation}} x_{\text{Father.s.occupation}} - 0.018 x_{\text{Curricular.units.1st.sem..enrolled.}} x_{\text{Curricular.units.1st.sem..without.evaluations.}} - 0.059 x_{\text{Curricular.units.1st.sem..approved.}} x_{\text{Curricular.units.1st.sem..without.evaluations.}} + 0.032 x_{\text{Curricular.units.2nd.sem..credited.}} x_{\text{Curricular.units.2nd.sem..evaluations.}} + 0.228 x_{\text{Curricular.units.2nd.sem..enrolled.}} x_{\text{Curricular.units.2nd.sem..without.evaluations.}} - 0.006 x_{\text{Curricular.units.2nd.sem..evaluations.}} x_{\text{Curricular.units.2nd.sem..approved.}} - 0.026 x_{\text{Curricular.units.2nd.sem..evaluations.}} x_{\text{Curricular.units.2nd.sem..without.evaluations.}} - 0.048 x_{\text{Curricular.units.2nd.sem..approved.}} x_{\text{Curricular.units.2nd.sem..grade.}} + \epsilon$$
+
+**Graduate vs Dropout: **
+
+$$\log\left(\frac{\hat{p}_{i, \text{Graduate}}}{\hat{p}_{i, \text{Dropout}}}\right) = 0.330 - 0.088 x_{\text{Application.order}} - 0.120 x_{\text{Course}} - 0.257 x_{\text{Nacionality}} - 0.032 x_{\text{Mother.s.qualification}} - 0.008 x_{\text{Mother.s.occupation}} - 0.305 x_{\text{Displaced}} - 1.019 x_{\text{Debtor}} + 3.139 x_{\text{Tuition.fees.up.to.date}} - 0.492 x_{\text{Gender}} + 0.730 x_{\text{Scholarship.holder}} - 0.047 x_{\text{Age.at.enrollment}} + 3.579 x_{\text{International}} - 0.241 x_{\text{Curricular.units.1st.sem..credited.}} - 0.286 x_{\text{Curricular.units.1st.sem..enrolled.}} + 0.755 x_{\text{Curricular.units.1st.sem..approved.}} - 0.677 x_{\text{Curricular.units.1st.sem..without.evaluations.}} - 0.180 x_{\text{Curricular.units.2nd.sem..credited.}} - 1.222 x_{\text{Curricular.units.2nd.sem..enrolled.}} - 0.239 x_{\text{Curricular.units.2nd.sem..evaluations.}} + 1.772 x_{\text{Curricular.units.2nd.sem..approved.}} + 0.044 x_{\text{Curricular.units.2nd.sem..grade.}} + 0.266 x_{\text{Curricular.units.2nd.sem..without.evaluations.}} - 0.094 x_{\text{Unemployment.rate}} + 0.003 x_{\text{Mother.s.qualification}} x_{\text{Mother.s.occupation}} + 0.003 x_{\text{Mother.s.occupation}} x_{\text{Father.s.occupation}} + 0.244 x_{\text{Curricular.units.1st.sem..enrolled.}} x_{\text{Curricular.units.1st.sem..without.evaluations.}} - 0.242 x_{\text{Curricular.units.1st.sem..approved.}} x_{\text{Curricular.units.1st.sem..without.evaluations.}} + 0.061 x_{\text{Curricular.units.2nd.sem..enrolled.}} x_{\text{Curricular.units.2nd.sem..evaluations.}} - 0.039 x_{\text{Curricular.units.2nd.sem..evaluations.}} x_{\text{Curricular.units.2nd.sem..approved.}} + 0.061 x_{\text{Curricular.units.2nd.sem..evaluations.}} x_{\text{Curricular.units.2nd.sem..without.evaluations.}} + 0.002 x_{\text{Curricular.units.2nd.sem..approved.}} x_{\text{Curricular.units.2nd.sem..grade.}} + \epsilon$$
+
+**Comments: **
+
+- Looking at the summary table the most effective predictor present in the model is `International` with a p-values of `0`, as well as a coefficient with magnitude of `2.354` and `3.579` when considering Enrolled vs. Dropout and Graduate and Graduate vs. Dropout respectively.
+
+- *Interpretations: * The odds that a student is enrolled vs dropped out, after controlling for the other variables change by a factor of `10.5276` as we move from  non-international to international status. Likewise, the odds that a student is graduated vs dropped out, after controlling for the other variables change by a factor of `35.83769` as we move from  non-international to international status.
+
+
+```{r}
+#Create Conf Matrix
+predClass <- predict(bsModel, newData = studentDS, type = "class")
+
+table(predClass, studentDS$Target)
+```
+
+```{r}
+#Calculate Total Accuracy
+(1090 + 304 + 2050) / nrow(studentDS)
+```
+
+**Comments: **
+
+- Looking at the confusion matrix, we obtain an overall accuracy of 77.8481%
+
+
+
+```{r}
+model <- lmer(Unemployment.rate ~ Marital.status + Nationality + Application.mode + Previous.qualification + 
+                Mother.s.qualification + Father.s.qualification + Mother.s.occupation + Father.s.occupation + 
+                (1 | Course),
+              data = studentDS1)
+```
+
+```{r}
+summary(model)
+```
+
+**Comments**
+
+- **Model Complexity**: The model includes a relatively large number of predictor variables, encompassing factors such as marital status, nationality, previous qualification, and parental qualifications and occupations. This complexity can potentially lead to overfitting and difficulties in model interpretation.
+
+- **Random Effects**: Random intercepts are included for the effect of `Course`, indicating that there is variability in the intercepts across different courses. This acknowledges the nested structure of the data, where students are clustered within courses. The estimated variance of the random intercepts is 0.3195, suggesting that there is variability in the intercepts among courses.
+
+- **Model Fit**: The REML criterion at convergence is 19851.4, providing a measure of the model's goodness of fit. Lower values of the REML criterion indicate better fit, although the absolute value itself does not offer a straightforward interpretation. However, it can be used for model comparison, where models with lower REML values are preferred if they provide a similar level of explanatory power.
+
+
+We've found that the unemployment rates can vary across different courses. This means that even if two students have similar backgrounds and characteristics, they might still have different chances of being unemployed depending on the course they're enrolled in. It's like saying that the environment or atmosphere of the course they're taking can also play a role in their employment outcomes. Overall, our analysis highlights the importance of considering various factors beyond just academic performance when understanding students' employment outcomes, and it underscores the need for tailored support and interventions to ensure every student has the opportunity to thrive in their education and future career.
+
+
+
+
+>>>>>>> Stashed changes
