@@ -575,11 +575,6 @@ tidy(bsModel, conf.int = FALSE, exponentiate = FALSE) %>%
 
 **Enrolled vs Dropout: **
 
-Certainly! Here's the updated formula for the "Enrolled vs Dropout" model without using the line continuation symbol:
-
-### Corrected Enrolled vs Dropout Model Including Missed Interactions
-
-
 $$\log\left(\frac{\hat{p}_{i, \text{Enrolled}}}{\hat{p}_{i, \text{Dropout}}}\right) = 0.030 - 0.116 x_{\text{Application.order}} - 0.069 x_{\text{Course}} - 0.158 x_{\text{Nacionality}} - 0.058 x_{\text{Mother.s.qualification}} + 0.001 x_{\text{Mother.s.occupation}} - 0.330 x_{\text{Displaced}} - 0.259 x_{\text{Debtor}} + 2.014 x_{\text{Tuition.fees.up.to.date}} - 0.239 x_{\text{Gender}} + 0.051 x_{\text{Scholarship.holder}} - 0.043 x_{\text{Age.at.enrollment}} + 2.354 x_{\text{International}} - 0.023 x_{\text{Curricular.units.1st.sem..credited.}} - 0.023 x_{\text{Curricular.units.1st.sem..enrolled.}} + 0.080 x_{\text{Curricular.units.1st.sem..approved.}} - 0.373 x_{\text{Curricular.units.2nd.sem..credited.}} - 0.327 x_{\text{Curricular.units.2nd.sem..enrolled.}} + 0.209 x_{\text{Curricular.units.2nd.sem..evaluations.}} + 0.964 x_{\text{Curricular.units.2nd.sem..approved.}} + 0.079 x_{\text{Curricular.units.2nd.sem..grade.}} - 1.079 x_{\text{Curricular.units.2nd.sem..without.evaluations.}} - 0.085 x_{\text{Unemployment.rate}} + 0.004 x_{\text{Mother.s.qualification}} x_{\text{Mother.s.occupation}} + 0.001 x_{\text{Mother.s.occupation}} x_{\text{Father.s.occupation}} - 0.018 x_{\text{Curricular.units.1st.sem..enrolled.}} x_{\text{Curricular.units.1st.sem..without.evaluations.}} - 0.059 x_{\text{Curricular.units.1st.sem..approved.}} x_{\text{Curricular.units.1st.sem..without.evaluations.}} + 0.032 x_{\text{Curricular.units.2nd.sem..credited.}} x_{\text{Curricular.units.2nd.sem..evaluations.}} + 0.228 x_{\text{Curricular.units.2nd.sem..enrolled.}} x_{\text{Curricular.units.2nd.sem..without.evaluations.}} - 0.006 x_{\text{Curricular.units.2nd.sem..evaluations.}} x_{\text{Curricular.units.2nd.sem..approved.}} - 0.026 x_{\text{Curricular.units.2nd.sem..evaluations.}} x_{\text{Curricular.units.2nd.sem..without.evaluations.}} - 0.048 x_{\text{Curricular.units.2nd.sem..approved.}} x_{\text{Curricular.units.2nd.sem..grade.}} + \epsilon$$
 
 **Graduate vs Dropout: **

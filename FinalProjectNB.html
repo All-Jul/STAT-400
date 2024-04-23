@@ -1744,11 +1744,6 @@ tidy(bsModel, conf.int = FALSE, exponentiate = FALSE) %&gt;%
 <li>The formula’s for the multinomial model are as follows:</li>
 </ul>
 <p><strong>Enrolled vs Dropout: </strong></p>
-<p>Certainly! Here’s the updated formula for the “Enrolled vs Dropout”
-model without using the line continuation symbol:</p>
-<div id="corrected-enrolled-vs-dropout-model-including-missed-interactions" class="section level3">
-<h3>Corrected Enrolled vs Dropout Model Including Missed
-Interactions</h3>
 <p><span class="math display">\[\log\left(\frac{\hat{p}_{i,
 \text{Enrolled}}}{\hat{p}_{i, \text{Dropout}}}\right) = 0.030 - 0.116
 x_{\text{Application.order}} - 0.069 x_{\text{Course}} - 0.158
@@ -1824,7 +1819,13 @@ in the model is <code>International</code> with a p-values of
 <code>0</code>, as well as a coefficient with magnitude of
 <code>2.354</code> and <code>3.579</code> when considering Enrolled
 vs. Dropout and Graduate and Graduate vs. Dropout respectively.</p></li>
-<li><p><em>Interpretation: </em></p></li>
+<li><p><em>Interpretations: </em> The odds that a student is enrolled vs
+dropped out, after controlling for the other variables change by a
+factor of <code>10.5276</code> as we move from non-international to
+international status. Likewise, the odds that a student is graduated vs
+dropped out, after controlling for the other variables change by a
+factor of <code>35.83769</code> as we move from non-international to
+international status.</p></li>
 </ul>
 <pre class="r"><code>#Create Conf Matrix
 predClass &lt;- predict(bsModel, newData = studentDS, type = &quot;class&quot;)
@@ -1840,9 +1841,9 @@ table(predClass, studentDS$Target)</code></pre>
 <pre><code>## [1] 0.778481</code></pre>
 <p><strong>Comments: </strong></p>
 <ul>
-<li></li>
+<li>Looking at the confusion matrix, we obtain an overall accuracy of
+77.8481%</li>
 </ul>
-</div>
 </div>
 </div>
 
