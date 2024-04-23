@@ -590,7 +590,7 @@ $$\log\left(\frac{\hat{p}_{i, \text{Graduate}}}{\hat{p}_{i, \text{Dropout}}}\rig
 
 - Looking at the summary table the most effective predictor present in the model is `International` with a p-values of `0`, as well as a coefficient with magnitude of `2.354` and `3.579` when considering Enrolled vs. Dropout and Graduate and Graduate vs. Dropout respectively.
 
-- *Interpretation: * 
+- *Interpretations: * The odds that a student is enrolled vs dropped out, after controlling for the other variables change by a factor of `10.5276` as we move from  non-international to international status. Likewise, the odds that a student is graduated vs dropped out, after controlling for the other variables change by a factor of `35.83769` as we move from  non-international to international status.
 
 
 ```{r}
@@ -607,4 +607,7 @@ table(predClass, studentDS$Target)
 
 **Comments: **
 
-- 
+- Looking at the confusion matrix, we obtain an overall accuracy of 77.8481%
+
+
+
