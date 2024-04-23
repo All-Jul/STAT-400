@@ -308,7 +308,7 @@ studentDS1 <- studentDS %>%
 
 -   When creating a model with said variables, which are most effective when predicting the student status?
 
-## Explanatory Dasta Analysis (EDA)
+## Explanatory Data Analysis (EDA)
 
 ```{r}
 #See couple rows of data
@@ -496,6 +496,44 @@ studentDS %>%
 -   The summary tables reflect this trend as well, where the average grade is lowest in the dropout group and highest in the graduated group.
 
 ```{r}
+#Display Summaries for some of the Quantitative Variables
+summary(studentDS$Curricular.units.1st.sem..grade.)
+summary(studentDS$Curricular.units.2nd.sem..grade.)
+summary(studentDS$Curricular.units.1st.sem..enrolled.)
+summary(studentDS$Curricular.units.2nd.sem..enrolled.)
+summary(studentDS$Curricular.units.1st.sem..credited.)
+summary(studentDS$Curricular.units.2nd.sem..credited.)
+summary(studentDS$Curricular.units.1st.sem..evaluations.)
+summary(studentDS$Curricular.units.2nd.sem..evaluations.)
+summary(studentDS$Curricular.units.1st.sem..approved.)
+summary(studentDS$Curricular.units.2nd.sem..approved.)
+summary(studentDS$Age.at.enrollment)
+```
+
+```{r}
+#Distribution of Age
+ggplot(
+  data = studentDS,
+  mapping = aes(x = Age.at.enrollment)
+  ) +
+    geom_histogram(
+      color = "black",
+      fill = boastPalette[4],
+      alpha = 0.7
+    ) +
+  labs(
+    title = "Histogram of Age at Enrollment",
+    x = "Age at Enrollment",
+    y = "Frequency"
+  )
+
+```
+
+**Comments: **
+
+-  Here we see a right-skewed distribution of age at enrollment, which is expected.
+
+```{r}
 library(reshape2)
 
 # Calculate correlation matrix
@@ -627,6 +665,7 @@ table(predClass, studentDS$Target)
 **Comments:**
 
 -   Looking at the confusion matrix, we obtain an overall accuracy of 77.8481%
+
 =======
 ---
 title: "Final Project"
@@ -1053,6 +1092,7 @@ ggplot(
 - Here, we see we have a lot more daytime attendance. However, there is a slightly higher proportion of graduates and enrolled and a lesser proportion of dropouts for the daytime group. 
 
 ```{r}
+#Display Summaries for some of the Quantitative Variables
 summary(studentDS$Curricular.units.1st.sem..grade.)
 summary(studentDS$Curricular.units.2nd.sem..grade.)
 summary(studentDS$Curricular.units.1st.sem..enrolled.)
@@ -1084,6 +1124,10 @@ ggplot(
   )
 
 ```
+
+**Comments: **
+
+-  Here we see a right-skewed distribution of age at enrollment, which is expected.
 
 ```{r}
 #Box plot for 1st semester
