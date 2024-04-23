@@ -418,12 +418,28 @@ ggplot(
 -   Here, we see we have a lot more daytime attendance. However, there is a slightly higher proportion of graduates and enrolled and a lesser proportion of dropouts for the daytime group.
 
 ```{r}
+#Calculate means
+meanGrade1 <- studentDS %>% 
+  group_by(Target) %>%
+  summarize(
+    N = n(),
+    avgGrade = mean(Curricular.units.1st.sem..grade.)
+  )
+
 #Box plot for 1st semester
 ggplot(
   data = studentDS1,
   mapping = aes(x = Target, y = Curricular.units.1st.sem..grade.)
   ) +
-    geom_boxplot()
+    geom_boxplot() +
+  geom_point(
+    data = meanGrade1,
+    mapping = aes(x = Target, y = avgGrade, color = "Mean of Grade"),
+    shape = 6,
+    size = 2
+  ) +
+  scale_color_manual(values = psuPalette[2], name = "", labels = "Mean of Grade") + 
+  theme(legend.position = "bottom")
 
 studentDS %>%
     group_by(Target) %>%
@@ -436,12 +452,28 @@ studentDS %>%
     ) %>%
     kable()
 
+#Calculate means
+meanGrade2 <- studentDS %>% 
+  group_by(Target) %>%
+  summarize(
+    N = n(),
+    avgGrade = mean(Curricular.units.2nd.sem..grade.)
+  )
+
 #Box plot for 2nd semester
 ggplot(
   data = studentDS1,
   mapping = aes(x = Target, y = Curricular.units.2nd.sem..grade.)
   ) +
-    geom_boxplot()
+    geom_boxplot() +
+  geom_point(
+    data = meanGrade2,
+    mapping = aes(x = Target, y = avgGrade, color = "Mean of Grade"),
+    shape = 6,
+    size = 2
+  ) +
+  scale_color_manual(values = psuPalette[2], name = "", labels = "Mean of Grade") + 
+  theme(legend.position = "bottom")
 
 studentDS %>%
     group_by(Target) %>%
