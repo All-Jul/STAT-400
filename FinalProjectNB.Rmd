@@ -1,6 +1,6 @@
 ---
 title: "Final Project"
-author: "Sean, Allan, Jared"
+author: "Sean Burke, Allan Julian, Jared Hayes" 
 output:
   html_document: default
   pdf_document: default
@@ -20,8 +20,11 @@ library(ggcorrplot)
 library(kableExtra)
 library(broom)
 
-studentDS <- read.csv("C:/Users/Sean/Stat400/STAT400/StudentSucessDataset.csv")
+studentDS <- read.csv("StudentSucessDataset.csv")
 
+```
+
+```{r, include = FALSE}
 studentDS1 <- studentDS %>%
   mutate(
     Marital.status = case_when(
@@ -296,19 +299,13 @@ studentDS1 <- studentDS %>%
 
 ### Introduction (Motivation)
 
-
-
-
-
-
 # GLM Section
 
-**Research Questions: **
+**Research Questions:**
 
-- What variables are best when predicting the student status `Target`?
+-   What variables are best when predicting the student status `Target`?
 
-- When creating a model with said variables, which are most effective when predicting the student status?
-
+-   When creating a model with said variables, which are most effective when predicting the student status?
 
 ## Explanatory Dasta Analysis (EDA)
 
@@ -316,7 +313,6 @@ studentDS1 <- studentDS %>%
 #See couple rows of data
 glimpse(studentDS1, 4)
 ```
-
 
 ```{r}
 #View Proportion of Student Status
@@ -336,13 +332,13 @@ ggplot(
   )
 ```
 
-**Comments: **
+**Comments:**
 
-- Looking at the status of the students, here are three categories or levels: "Dropout", "Enrolled", and "Graduate".
+-   Looking at the status of the students, here are three categories or levels: "Dropout", "Enrolled", and "Graduate".
 
-- If we are interested in creating a predictive model we can create a multinomial model predicting for this status.
+-   If we are interested in creating a predictive model we can create a multinomial model predicting for this status.
 
-- Then, we can find what variables are best in predicting this status
+-   Then, we can find what variables are best in predicting this status
 
 ```{r}
 #Create Sex Variable
@@ -377,13 +373,13 @@ studentDS %>%
   kable()
 ```
 
-**Comments: **
+**Comments:**
 
-- Looking at the plots and summary data, we find there is a higher proportion of female graduates than male graduates when comparing the two genders. 
+-   Looking at the plots and summary data, we find there is a higher proportion of female graduates than male graduates when comparing the two genders.
 
-- Similarly we find that there are a higher proportion of male dropouts than female dropouts, even though the number of dropouts appear to be similar.
+-   Similarly we find that there are a higher proportion of male dropouts than female dropouts, even though the number of dropouts appear to be similar.
 
-- This indicates that gender may be a good indicator for the student status or success. 
+-   This indicates that gender may be a good indicator for the student status or success.
 
 ```{r}
 #View Proportion of Student Status by time of attendance
@@ -416,9 +412,9 @@ ggplot(
 
 `NOTE:` `1` indicates daytime attendance and `0` indicates night time attendance.
 
-**Comments: **
+**Comments:**
 
-- Here, we see we have a lot more daytime attendance. However, there is a slightly higher proportion of graduates and enrolled and a lesser proportion of dropouts for the daytime group. 
+-   Here, we see we have a lot more daytime attendance. However, there is a slightly higher proportion of graduates and enrolled and a lesser proportion of dropouts for the daytime group.
 
 ```{r}
 #Box plot for 1st semester
@@ -458,14 +454,13 @@ studentDS %>%
     kable()
 ```
 
+**Comments:**
 
-**Comments: **
+-   Looking at the box plots for the 2 semester's there is a similar trend between the distributions of the grades of the students for each status group.
 
-- Looking at the box plots for the 2 semester's there is a similar trend between the distributions of the grades of the students for each status group.
+-   Dropouts tended to score lower than the graduates, with the enrolled students performing between the two.
 
-- Dropouts tended to score lower than the graduates, with the enrolled students performing between the two.
-
-- The summary tables reflect this trend as well, where the average grade is lowest in the dropout group and highest in the graduated group.
+-   The summary tables reflect this trend as well, where the average grade is lowest in the dropout group and highest in the graduated group.
 
 ```{r}
 library(reshape2)
@@ -500,16 +495,15 @@ ggplot(
   )
 ```
 
-**Comments: **
+**Comments:**
 
-- Looking at the heat map, we find strong correlations present between the credits, grades, and other curricular data recorded for the 1st and 2nd semesters. 
+-   Looking at the heat map, we find strong correlations present between the credits, grades, and other curricular data recorded for the 1st and 2nd semesters.
 
-- We can also see some correlation between the parent's data, as well as correlation between certain groups along the diagonal. 
+-   We can also see some correlation between the parent's data, as well as correlation between certain groups along the diagonal.
 
-- There is a relatively strong correlation between whether the student is an Internation and their nationality.
+-   There is a relatively strong correlation between whether the student is an Internation and their nationality.
 
-- If we separate those areas of correlation into groups We can also see some correlation between groups as well, which should be kept in mind when modeling.
-
+-   If we separate those areas of correlation into groups We can also see some correlation between groups as well, which should be kept in mind when modeling.
 
 ## Model
 
@@ -537,7 +531,6 @@ fullModel <- multinom(Target ~ Marital.status + Application.mode + Application.o
 
 #stepModel <- stepAIC(fullModel, scope = list(lower = formula(baseModel), upper = formula(fullModel)), direction = "backward")
 ```
-
 
 ```{r}
 #Model using variables selected using backwards selection
@@ -568,25 +561,23 @@ tidy(bsModel, conf.int = FALSE, exponentiate = FALSE) %>%
   kable(digits = 3, format = "markdown")
 ```
 
+**Comments:**
 
-**Comments: ** 
+-   The formula's for the multinomial model are as follows:
 
-- The formula's for the multinomial model are as follows: 
-
-**Enrolled vs Dropout: **
+**Enrolled vs Dropout:**
 
 $$\log\left(\frac{\hat{p}_{i, \text{Enrolled}}}{\hat{p}_{i, \text{Dropout}}}\right) = 0.030 - 0.116 x_{\text{Application.order}} - 0.069 x_{\text{Course}} - 0.158 x_{\text{Nacionality}} - 0.058 x_{\text{Mother.s.qualification}} + 0.001 x_{\text{Mother.s.occupation}} - 0.330 x_{\text{Displaced}} - 0.259 x_{\text{Debtor}} + 2.014 x_{\text{Tuition.fees.up.to.date}} - 0.239 x_{\text{Gender}} + 0.051 x_{\text{Scholarship.holder}} - 0.043 x_{\text{Age.at.enrollment}} + 2.354 x_{\text{International}} - 0.023 x_{\text{Curricular.units.1st.sem..credited.}} - 0.023 x_{\text{Curricular.units.1st.sem..enrolled.}} + 0.080 x_{\text{Curricular.units.1st.sem..approved.}} - 0.373 x_{\text{Curricular.units.2nd.sem..credited.}} - 0.327 x_{\text{Curricular.units.2nd.sem..enrolled.}} + 0.209 x_{\text{Curricular.units.2nd.sem..evaluations.}} + 0.964 x_{\text{Curricular.units.2nd.sem..approved.}} + 0.079 x_{\text{Curricular.units.2nd.sem..grade.}} - 1.079 x_{\text{Curricular.units.2nd.sem..without.evaluations.}} - 0.085 x_{\text{Unemployment.rate}} + 0.004 x_{\text{Mother.s.qualification}} x_{\text{Mother.s.occupation}} + 0.001 x_{\text{Mother.s.occupation}} x_{\text{Father.s.occupation}} - 0.018 x_{\text{Curricular.units.1st.sem..enrolled.}} x_{\text{Curricular.units.1st.sem..without.evaluations.}} - 0.059 x_{\text{Curricular.units.1st.sem..approved.}} x_{\text{Curricular.units.1st.sem..without.evaluations.}} + 0.032 x_{\text{Curricular.units.2nd.sem..credited.}} x_{\text{Curricular.units.2nd.sem..evaluations.}} + 0.228 x_{\text{Curricular.units.2nd.sem..enrolled.}} x_{\text{Curricular.units.2nd.sem..without.evaluations.}} - 0.006 x_{\text{Curricular.units.2nd.sem..evaluations.}} x_{\text{Curricular.units.2nd.sem..approved.}} - 0.026 x_{\text{Curricular.units.2nd.sem..evaluations.}} x_{\text{Curricular.units.2nd.sem..without.evaluations.}} - 0.048 x_{\text{Curricular.units.2nd.sem..approved.}} x_{\text{Curricular.units.2nd.sem..grade.}} + \epsilon$$
 
-**Graduate vs Dropout: **
+**Graduate vs Dropout:**
 
 $$\log\left(\frac{\hat{p}_{i, \text{Graduate}}}{\hat{p}_{i, \text{Dropout}}}\right) = 0.330 - 0.088 x_{\text{Application.order}} - 0.120 x_{\text{Course}} - 0.257 x_{\text{Nacionality}} - 0.032 x_{\text{Mother.s.qualification}} - 0.008 x_{\text{Mother.s.occupation}} - 0.305 x_{\text{Displaced}} - 1.019 x_{\text{Debtor}} + 3.139 x_{\text{Tuition.fees.up.to.date}} - 0.492 x_{\text{Gender}} + 0.730 x_{\text{Scholarship.holder}} - 0.047 x_{\text{Age.at.enrollment}} + 3.579 x_{\text{International}} - 0.241 x_{\text{Curricular.units.1st.sem..credited.}} - 0.286 x_{\text{Curricular.units.1st.sem..enrolled.}} + 0.755 x_{\text{Curricular.units.1st.sem..approved.}} - 0.677 x_{\text{Curricular.units.1st.sem..without.evaluations.}} - 0.180 x_{\text{Curricular.units.2nd.sem..credited.}} - 1.222 x_{\text{Curricular.units.2nd.sem..enrolled.}} - 0.239 x_{\text{Curricular.units.2nd.sem..evaluations.}} + 1.772 x_{\text{Curricular.units.2nd.sem..approved.}} + 0.044 x_{\text{Curricular.units.2nd.sem..grade.}} + 0.266 x_{\text{Curricular.units.2nd.sem..without.evaluations.}} - 0.094 x_{\text{Unemployment.rate}} + 0.003 x_{\text{Mother.s.qualification}} x_{\text{Mother.s.occupation}} + 0.003 x_{\text{Mother.s.occupation}} x_{\text{Father.s.occupation}} + 0.244 x_{\text{Curricular.units.1st.sem..enrolled.}} x_{\text{Curricular.units.1st.sem..without.evaluations.}} - 0.242 x_{\text{Curricular.units.1st.sem..approved.}} x_{\text{Curricular.units.1st.sem..without.evaluations.}} + 0.061 x_{\text{Curricular.units.2nd.sem..enrolled.}} x_{\text{Curricular.units.2nd.sem..evaluations.}} - 0.039 x_{\text{Curricular.units.2nd.sem..evaluations.}} x_{\text{Curricular.units.2nd.sem..approved.}} + 0.061 x_{\text{Curricular.units.2nd.sem..evaluations.}} x_{\text{Curricular.units.2nd.sem..without.evaluations.}} + 0.002 x_{\text{Curricular.units.2nd.sem..approved.}} x_{\text{Curricular.units.2nd.sem..grade.}} + \epsilon$$
 
-**Comments: **
+**Comments:**
 
-- Looking at the summary table the most effective predictor present in the model is `International` with a p-values of `0`, as well as a coefficient with magnitude of `2.354` and `3.579` when considering Enrolled vs. Dropout and Graduate and Graduate vs. Dropout respectively.
+-   Looking at the summary table the most effective predictor present in the model is `International` with a p-values of `0`, as well as a coefficient with magnitude of `2.354` and `3.579` when considering Enrolled vs. Dropout and Graduate and Graduate vs. Dropout respectively.
 
-- *Interpretations: * The odds that a student is enrolled vs dropped out, after controlling for the other variables change by a factor of `10.5276` as we move from  non-international to international status. Likewise, the odds that a student is graduated vs dropped out, after controlling for the other variables change by a factor of `35.83769` as we move from  non-international to international status.
-
+-   *Interpretations:* The odds that a student is enrolled vs dropped out, after controlling for the other variables change by a factor of `10.5276` as we move from non-international to international status. Likewise, the odds that a student is graduated vs dropped out, after controlling for the other variables change by a factor of `35.83769` as we move from non-international to international status.
 
 ```{r}
 #Create Conf Matrix
@@ -600,9 +591,6 @@ table(predClass, studentDS$Target)
 (1090 + 304 + 2050) / nrow(studentDS)
 ```
 
-**Comments: **
+**Comments:**
 
-- Looking at the confusion matrix, we obtain an overall accuracy of 77.8481%
-
-
-
+-   Looking at the confusion matrix, we obtain an overall accuracy of 77.8481%
