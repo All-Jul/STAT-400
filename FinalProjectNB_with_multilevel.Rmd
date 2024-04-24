@@ -300,6 +300,12 @@ studentDS1 <- studentDS %>%
 
 ### Introduction (Motivation)
 
+- The data set we are studying contains 4424 observations, in which each case is a student. In addition, there are 35 variables that contain a variety of information regarding family, socioeconomics, semester information, and other demographical information. 
+
+- Our response variable is `Target`, which describes the status of the students. 
+
+- Using the other variables, our goal is to look at the qualities of some of the variables and create models predicting our response.
+
 # GLM Section
 
 **Research Questions:**
@@ -602,6 +608,10 @@ fullModel <- multinom(Target ~ Marital.status + Application.mode + Application.o
 
 #stepModel <- stepAIC(fullModel, scope = list(lower = formula(baseModel), upper = formula(fullModel)), direction = "backward")
 ```
+
+**Comments: **
+
+- We will perform a backwards feature selkection based on AIC criterion, because we are interested in making predictions.
 
 ```{r}
 #Model using variables selected using backwards selection
@@ -1309,7 +1319,7 @@ table(predClass, studentDS$Target)
 - Looking at the confusion matrix, we obtain an overall accuracy of 77.8481%
 
 
-
+## MultiLevel Model
 ```{r}
 model <- lmer(Unemployment.rate ~ Marital.status + Nationality + Application.mode + Previous.qualification + 
                 Mother.s.qualification + Father.s.qualification + Mother.s.occupation + Father.s.occupation + 
