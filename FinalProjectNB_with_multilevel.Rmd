@@ -722,7 +722,7 @@ ggplot(
 
 -   If we separate those areas of correlation into groups We can also see some correlation between groups as well, which should be kept in mind when modeling.
 
-## Model
+## Multinomial Model
 
 ```{r}
 library(nnet)
@@ -815,6 +815,32 @@ table(predClass, studentDS$Target)
 **Comments:**
 
 -   Looking at the confusion matrix, we obtain an overall accuracy of 77.8481%
+
+## Additional Model
+
+```{r}
+library(randomForest)
+```
+
+```{r}
+rf.object <- randomForest(as.factor(Target) ~ Application.order + Course + Nacionality + Mother.s.qualification + 
+    Father.s.qualification + Mother.s.occupation + Father.s.occupation + 
+    Displaced + Debtor + Tuition.fees.up.to.date + Gender + Scholarship.holder + 
+    Age.at.enrollment + International + Curricular.units.1st.sem..credited. + 
+    Curricular.units.1st.sem..enrolled. + Curricular.units.1st.sem..approved. + 
+    Curricular.units.1st.sem..without.evaluations. + Curricular.units.2nd.sem..credited. + 
+    Curricular.units.2nd.sem..enrolled. + Curricular.units.2nd.sem..evaluations. + 
+    Curricular.units.2nd.sem..approved. + Curricular.units.2nd.sem..grade. + 
+    Curricular.units.2nd.sem..without.evaluations. + Unemployment.rate, 
+    data = studentDS)
+    
+
+rf.object
+
+rf.object$importance
+
+varImpPlot(rf.object)
+```
 
 
 ## MultiLevel Model
