@@ -25,6 +25,22 @@ studentDS <- read.csv("StudentSucessDataset.csv")
 
 ```
 
+## Introduction (Motivation)
+
+- In today's dynamic educational landscape, it's crucial to delve deeper into what influences student graduation and employment outcomes. Our presentation aims to unravel the complexities surrounding this topic by examining various factors that shape students' paths to success. From demographic data to socioeconomic factors and academic performance indicators, we'll explore the intricate web of influences that impact student employment prospects. 
+
+- The data set we are studying contains 4424 observations, in which each case is a university student. In addition, there are 35 variables that contain a variety of information regarding family, socioeconomics, semester information, and other demographical information. 
+
+- Our response variable is `Target`, which describes the status of the students. 
+
+- Using the other variables, our goal is to look at the qualities of some of the variables and create models predicting our response.
+
+- Our dataset is cited as: [Valentim Realinho, Jorge Machado, Luís Baptista, & Mónica V. Martins. (2021). Predict students' dropout and academic success (1.0) [Data set]. Zenodo. https://doi.org/10.5281/zenodo.5777340](https://zenodo.org/records/5777340)
+
+## Mutate Data
+
+- Using information about the dataset, we mutated the dataset to include specific information for each categorical variable (excluding the Target).
+
 ```{r, include = FALSE}
 studentDS1 <- studentDS %>%
   mutate(
@@ -298,15 +314,7 @@ studentDS1 <- studentDS %>%
 
 ```
 
-### Introduction (Motivation)
-
-- The data set we are studying contains 4424 observations, in which each case is a university student. In addition, there are 35 variables that contain a variety of information regarding family, socioeconomics, semester information, and other demographical information. 
-
-- Our response variable is `Target`, which describes the status of the students. 
-
-- Using the other variables, our goal is to look at the qualities of some of the variables and create models predicting our response.
-
-# GLM Section
+## GLM Section
 
 **Research Questions:**
 
@@ -341,11 +349,11 @@ ggplot(
 
 **Comments:**
 
--   Looking at the status of the students, here are three categories or levels: "Dropout", "Enrolled", and "Graduate".
+- Looking at the status of the students, here are three categories or levels: "Dropout", "Enrolled", and "Graduate".
 
--   If we are interested in creating a predictive model we can create a multinomial model predicting for this status.
+- If we are interested in creating a predictive model we can create a multinomial model predicting for this status.
 
--   Then, we can find what variables are best in predicting this status
+- Then, we can find what variables are best in predicting this status
 
 ```{r}
 #Create Sex Variable
@@ -382,11 +390,11 @@ studentDS %>%
 
 **Comments:**
 
--   Looking at the plots and summary data, we find there is a higher proportion of female graduates than male graduates when comparing the two genders.
+- Looking at the plots and summary data, we find there is a higher proportion of female graduates than male graduates when comparing the two genders.
 
--   Similarly we find that there are a higher proportion of male dropouts than female dropouts, even though the number of dropouts appear to be similar.
+- Similarly we find that there are a higher proportion of male dropouts than female dropouts, even though the number of dropouts appear to be similar.
 
--   This indicates that gender may be a good indicator for the student status or success.
+- This indicates that gender may be a good indicator for the student status or success.
 
 ```{r}
 #View Proportion of Student Status by time of attendance
@@ -421,7 +429,7 @@ ggplot(
 
 **Comments:**
 
--   Here, we see we have a lot more daytime attendance. However, there is a slightly higher proportion of graduates and enrolled and a lesser proportion of dropouts for the daytime group.
+- Here, we see we have a lot more daytime attendance. However, there is a slightly higher proportion of graduates and enrolled and a lesser proportion of dropouts for the daytime group.
 
 
 ```{r}
@@ -458,6 +466,10 @@ studentDS %>%
   kable()
 ```
 
+**Comments:**
+
+- Here we see a very slightly higher proportion of Non-International graduates.
+
 ```{r}
 #View Proportion of Student Status
 studentDS1 %>%
@@ -492,6 +504,11 @@ studentDS1 %>%
   kable()
 ```
 
+**Comments: **
+
+- From the Grid Pie plot, it is easy to see that different nationalities have different status proportions. We will explore this differences in future sections. 
+
+- `NOTE:` There are many instances where certain nationality groups contain very small sample sizes as low as 1.
 
 ```{r}
 #Calculate means
@@ -572,21 +589,6 @@ studentDS %>%
 -   The summary tables reflect this trend as well, where the average grade is lowest in the dropout group and highest in the graduated group.
 
 ```{r}
-#Display Summaries for some of the Quantitative Variables
-summary(studentDS$Curricular.units.1st.sem..grade.)
-summary(studentDS$Curricular.units.2nd.sem..grade.)
-summary(studentDS$Curricular.units.1st.sem..enrolled.)
-summary(studentDS$Curricular.units.2nd.sem..enrolled.)
-summary(studentDS$Curricular.units.1st.sem..credited.)
-summary(studentDS$Curricular.units.2nd.sem..credited.)
-summary(studentDS$Curricular.units.1st.sem..evaluations.)
-summary(studentDS$Curricular.units.2nd.sem..evaluations.)
-summary(studentDS$Curricular.units.1st.sem..approved.)
-summary(studentDS$Curricular.units.2nd.sem..approved.)
-summary(studentDS$Age.at.enrollment)
-```
-
-```{r}
 #Distribution of Age
 ggplot(
   data = studentDS,
@@ -602,9 +604,14 @@ ggplot(
     x = "Age at Enrollment",
     y = "Frequency"
   )
-
 ```
 
+**Comments: **
+
+- Here we see a right-skewed distribution.
+
+- The median age is `20` years old with
+Some very extreme value at the right (`70`).
 
 ```{r}
 #View Proportion of Student Status
@@ -640,6 +647,13 @@ studentDS %>%
   kable()
 ```
 
+`NOTE:` `1` indicates the student is in debt and `0` indicates the student is not in debt.
+
+**Comments:**
+
+- Intuitively, we see students with more debt tend to exhibit a higher proportion of drop-out.
+
+
 ```{r}
 #View Proportion of Student Status
 studentDS %>%
@@ -674,10 +688,11 @@ studentDS %>%
   kable()
 ```
 
+`NOTE:` `1` indicates the student has some sort of scholarship and `0` indicates the student is not a scholarship holder.
 
-**Comments: **
+**Comments:**
 
--  Here we see a right-skewed distribution of age at enrollment, which is expected.
+- We see scholarship holders have a higher proportion of Graduates, which is expected.
 
 ```{r}
 library(reshape2)
@@ -724,13 +739,27 @@ ggplot(
 
 ## Multinomial Model
 
+- For our Generalized Linear Model (GLM), we will be creating a Multinomial Logistic Regression Model due to the 3 levels of our response.
+
+- First we will perform a variable selection to find the best predictors for our model. Then, we will build our model using the variables selected. After, we will assess our model using overall accuracy as our indicator.
+
+### Load Additional Libraries
+
 ```{r}
 library(nnet)
 library(MASS)
 ```
 
+### Variable Selection
+
+**Initial Comments: **
+
+- We will perform a backwards feature selection based on AIC criterion, because we are interested in making predictions.
+
+- We are interested in minimizing our model complexity. And, this is method is automatic.
+
 ```{r}
-#Perform Backwards Selection
+#Build full and base models
 baseModel <-  multinom(Target ~ 1, data = studentDS)
 fullModel <- multinom(Target ~ Marital.status + Application.mode + Application.order + 
     Course + Daytime.evening.attendance + Previous.qualification + 
@@ -745,13 +774,26 @@ fullModel <- multinom(Target ~ Marital.status + Application.mode + Application.o
     Curricular.units.2nd.sem..approved. + Curricular.units.2nd.sem..grade. + 
     Curricular.units.2nd.sem..without.evaluations.)^2 + Unemployment.rate + 
     Inflation.rate + GDP + International:Nacionality, data = studentDS)
+```
 
-#stepModel <- stepAIC(fullModel, scope = list(lower = formula(baseModel), upper = formula(fullModel)), direction = "backward")
+```{r, include=FALSE}
+#Perform Backwards Selection
+# stepModel <- stepAIC(fullModel, scope = list(lower = formula(baseModel), upper = formula(fullModel)), direction = "backward")
 ```
 
 **Comments: **
 
-- We will perform a backwards feature selkection based on AIC criterion, because we are interested in making predictions.
+`NOTE:` Given the Nuances in the Data (as seen in the correlation heatmap), it is a good practice to account for interaction terms when building the model.
+
+- Our Initial model before the feature selection included `34` Main Effects and `33` Interactions.
+
+- After performing the backwards selection we ended up with `25` Main Effects and `13` Interactions.
+
+### Modeling
+
+**Initial Comments: **
+
+- Using the selected predictors we will create a multinomial model using the `multinom` function.
 
 ```{r}
 #Model using variables selected using backwards selection
@@ -796,9 +838,15 @@ $$\log\left(\frac{\hat{p}_{i, \text{Graduate}}}{\hat{p}_{i, \text{Dropout}}}\rig
 
 **Comments:**
 
--   Looking at the summary table the most effective predictor present in the model is `International` with a p-values of `0`, as well as a coefficient with magnitude of `2.354` and `3.579` when considering Enrolled vs. Dropout and Graduate and Graduate vs. Dropout respectively.
+- Looking at the summary table the most effective predictor present in the model is `International` with a p-values of `0`, as well as a coefficient with magnitude of `2.354` and `3.579` when considering Enrolled vs. Dropout and Graduate and Graduate vs. Dropout respectively.
 
--   *Interpretations:* The odds that a student is enrolled vs dropped out, after controlling for the other variables change by a factor of `10.5276` as we move from non-international to international status. Likewise, the odds that a student is graduated vs dropped out, after controlling for the other variables change by a factor of `35.83769` as we move from non-international to international status.
+- If we look back at our EDA, our `International` variable seemed to have little effect.
+
+- While we don't know for sure without sufficient data, there is a high possibility of confounding variables or other factors that influenced this.
+
+- *Interpretations:* The odds that a student is enrolled vs dropped out, after controlling for the other variables change by a factor of `10.5276` as we move from non-international to international status. Likewise, the odds that a student is graduated vs dropped out, after controlling for the other variables change by a factor of `35.83769` as we move from non-international to international status.
+
+### Model Assessement
 
 ```{r}
 #Create Conf Matrix
@@ -814,15 +862,30 @@ table(predClass, studentDS$Target)
 
 **Comments:**
 
--   Looking at the confusion matrix, we obtain an overall accuracy of 77.8481%
+- Looking at the confusion matrix, we obtain an overall accuracy of 77.8481%
 
-## Additional Model
+## Additional Model 
+
+- To further enhance our predictions, we are interested in implementing other machine learning techniques
+
+- Because of the high volume of categorical data and interactions, we were interested in seeing if using decision trees would be beneficial.
+
+- Specifically we will be using a bagging (bootstrap aggregated) technique call random foresting. 
+
+### Load Additional Libraries
 
 ```{r}
 library(randomForest)
 ```
 
+### Variable Selection
+
+- For this model, we will use only the main effects selected in our multinomial model, since random forest decision trees handle interactions well. 
+
+### Modeling/Assessment
+
 ```{r}
+#Create Random Forest Object
 rf.object <- randomForest(as.factor(Target) ~ Application.order + Course + Nacionality + Mother.s.qualification + 
     Father.s.qualification + Mother.s.occupation + Father.s.occupation + 
     Displaced + Debtor + Tuition.fees.up.to.date + Gender + Scholarship.holder + 
@@ -834,7 +897,10 @@ rf.object <- randomForest(as.factor(Target) ~ Application.order + Course + Nacio
     Curricular.units.2nd.sem..without.evaluations. + Unemployment.rate, 
     data = studentDS)
     
+```
 
+```{r}
+#Display Information including Confusion matrix and Importance
 rf.object
 
 rf.object$importance
@@ -842,17 +908,85 @@ rf.object$importance
 varImpPlot(rf.object)
 ```
 
+**Comments: **
 
-## MultiLevel Model
+- Looking at the confusion matrix, we obtain an overall accuracy of 78.37% which is higher than the accuracy obtained in the regular multinomial regression model. 
+
+- Using MeanDecreaseGini, our top 3 important variables are as follows: The `Curricular.units.2nd.sem..approved.`, the `Curricular.units.2nd.sem..grade.`, and the `Curricular.units.1st.sem..evaluations.`
+
+- Although there seems to be a difference in what was chosen as the most important variable in the multinomial logistic regression model in comparison to the random forest model, it should be noted that these top 3 important variables selected here were still effective predictors in the multinomial logistic regression model. 
+
+## MultiLevel Modeling Section
+
+**Variable of Interest: ** `Unemployment.rate` 
+
+
+
+### EDA (Multilevel)
+
 ```{r}
-model <- lmer(Unemployment.rate ~ Marital.status + Nationality + Application.mode + Previous.qualification + 
-                Mother.s.qualification + Father.s.qualification + Mother.s.occupation + Father.s.occupation + 
-                (1 | Course),
-              data = studentDS1)
+#View unemployment rate
+ggplot(
+  data = studentDS,
+  mapping = aes(x = Unemployment.rate)
+) +
+  geom_histogram(
+    color = "black",
+    fill = boastPalette[2],
+    alpha = 0.7,
+    binwidth = 2
+  ) + 
+  labs(
+    title = "Histogram of Unemployment Rate",
+   x = "Unemployment Rate",
+   y = "Frequency"
+  )
+```
+
+**Comments: **
+
+- Here we see a slightly right-skewed, with the data being most frequent around 12% 
+
+```{r}
+#View Unemployment rate by Course
+ggplot(
+  data = studentDS1,
+  mapping = aes(x = Unemployment.rate)
+) +
+  geom_histogram(
+    color = "black",
+    fill = boastPalette[6],
+    alpha = 0.7,
+    binwidth = 2
+  ) + 
+  facet_wrap(Course~.) +
+  labs(
+    title = "Histogram of Unemployment Rate by Course",
+   x = "Unemployment Rate",
+   y = "Frequency"
+  )
+```
+
+**Comments: **
+
+- Here, we can see the distribution of the Unemployment rate by each Course.
+
+- In particular, we see majors like Nursing and Management distributed more towards lower unemployment rates, which is expected.
+
+- Along the same lines, we see courses like Agronomy and Communication Design distributed more towards the higher unemployment rates. 
+
+- There seems to be a trend where more essential jobs like health are reporting lower unemployement rates, which is to be expected.
+
+### MultiLevel Model
+
+```{r}
+#Create MultiLevel Model
+Umodel <- lmer(Unemployment.rate ~ Marital.status + Nationality + Application.mode + Previous.qualification + Mother.s.qualification + Father.s.qualification + Mother.s.occupation + Father.s.occupation + (1 | Course), data = studentDS1)
 ```
 
 ```{r}
-summary(model)
+#Display model summary
+summary(Umodel)
 ```
 
 **Comments**
@@ -866,3 +1000,6 @@ summary(model)
 
 We've found that the unemployment rates can vary across different courses. This means that even if two students have similar backgrounds and characteristics, they might still have different chances of being unemployed depending on the course they're enrolled in. It's like saying that the environment or atmosphere of the course they're taking can also play a role in their employment outcomes. Overall, our analysis highlights the importance of considering various factors beyond just academic performance when understanding students' employment outcomes, and it underscores the need for tailored support and interventions to ensure every student has the opportunity to thrive in their education and future career.
 
+## Conclusion
+
+- In conclusion, our project has provided valuable insights into the complex interplay of factors influencing student employment outcomes in higher education. Through the application of sophisticated statistical modeling techniques, we have elucidated the multifaceted nature of student success, considering demographic, socioeconomic, and academic performance indicators.
