@@ -920,7 +920,13 @@ varImpPlot(rf.object)
 
 **Variable of Interest: ** `Unemployment.rate` 
 
+-  Unemployment rates with the model will allow us to pinpoint demographic and socioeconomic factors.
 
+- Analyzing unemployment rates using a robust statistical model fosters institutional accountability.
+
+- The relationship between unemployment rates and academic performance indicators will help provide insights into the factors driving student success (our target variable).
+
+- Insights gained from analyzing unemployment rates can hopefully be used to inform the development of effective policies and programs aimed at reducing student unemployment.
 
 ### EDA (Multilevel)
 
